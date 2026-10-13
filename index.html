@@ -103,7 +103,15 @@
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
     .pantone-count { white-space:nowrap; color:#697386; font-size:12px; }
-    .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--pantone-card-min,100px),1fr)); gap:8px; margin:12px 0; }
+    .color-dialog--pantone { max-width:1180px; margin-top:3vh !important; }
+    .color-dialog--pantone .el-dialog__body { max-height:calc(88vh - 112px); }
+    .pantone-workspace { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
+    .pantone-colors-pane { display:flex; flex-direction:column; min-width:0; height:min(58vh,540px); border:1px solid #e1e6ee; border-radius:9px; background:#fff; overflow:hidden; }
+    .pantone-colors-head { display:flex; justify-content:space-between; align-items:center; padding:11px 13px; border-bottom:1px solid #e1e6ee; }
+    .pantone-colors-head strong { color:#263447; font-size:14px; }
+    .pantone-colors-scroll { flex:1; min-height:0; overflow-y:auto; padding:12px; }
+    .pantone-controls-pane { min-width:0; max-height:min(58vh,540px); overflow-y:auto; padding:0 3px 0 1px; }
+    .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--pantone-card-min,100px),1fr)); gap:8px; margin:0; }
     .pantone-filters { display:grid; gap:10px; margin:13px 0; padding:12px; border:1px solid #e1e6ee; border-radius:9px; background:#f9fbfe; }
     .pantone-filter-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:12px; color:#4e5969; }
     .pantone-filter-head strong { color:#263447; font-size:13px; }
@@ -123,7 +131,12 @@
     .pantone-swatch__color { display:block; height:44px; border:1px solid rgba(0,0,0,.07); border-radius:5px; }
     .pantone-swatch__code { display:block; margin-top:5px; font-weight:600; font-size:12px; color:#30394a; }
     .pantone-swatch__hex { display:block; margin-top:2px; color:#697386; font-size:11px; }
-    .pantone-page { display:flex; justify-content:center; margin:10px 0 4px; }
+    .pantone-page { display:flex; justify-content:center; padding:9px 4px; border-top:1px solid #e1e6ee; }
+    @media (max-width:800px) {
+      .pantone-workspace { grid-template-columns:1fr; }
+      .pantone-colors-pane { height:45vh; }
+      .pantone-controls-pane { max-height:none; }
+    }
     .color-source { width:116px; padding:6px; border:1px solid #e1e5ee; border-radius:8px; background:#fff; color:#606266; cursor:pointer; text-align:left; }
     .color-source-wrap { position:relative; display:inline-flex; }
     .color-source-remove { position:absolute; top:2px; right:2px; width:22px; height:22px; border:0; border-radius:50%; background:rgba(255,255,255,.94); color:#687385; cursor:pointer; }
@@ -701,7 +714,7 @@
       <div class="reference-image-preview"><img v-if="previewImage" :src="previewImage" :alt="previewImageName || '参考图片预览'"></div>
     </el-dialog>
 
-    <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" width="680px" custom-class="color-dialog" append-to-body data-modal-id="main-color-picker">
+    <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
       <el-tabs v-model="colorTab">
         <el-tab-pane label="色盘" name="wheel">
           <div class="color-picker-layout">
@@ -714,12 +727,21 @@
           <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" @click="chooseDraftColor(hex,'浅彩参考色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
-          <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX，例如 11-0103" aria-label="搜索潘通参考编号或颜色值"></el-input><span class="pantone-count">{{ filteredPantoneColors.length }} / {{ pantoneColors.length }} 色</span></div>
-          <div class="field-description">第三方 <a href="https://github.com/Margaret2/pantone-colors" target="_blank" rel="noopener noreferrer">Margaret2/pantone-colors</a> 的 FHI 系列编号与 HEX 数据，共 2,310 色；此处不区分 TCX／TPG。HEX 仅供屏幕选色参考，实物、印刷及正式色号请用<a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方资料</a>核对。</div>
-          <div class="pantone-filters"><div class="pantone-filter-hint">在渐变条上按住并拖动选择范围；色相、饱和度、明度会取交集。也可在下方输入精确范围。</div><div v-for="filter in pantoneFilterDefs" :key="filter.key" class="pantone-filter"><div class="pantone-filter-head"><strong>{{ filter.label }}</strong><span>{{ pantoneFilterLabel(filter) }} <button v-if="pantoneFilters[filter.key].active" type="button" :aria-label="'清除'+filter.label+'筛选'" @click="resetPantoneFilter(filter.key)">清除</button></span></div><div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div><div class="pantone-filter-bounds"><span>从</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].from" :aria-label="filter.label+'最小值'" @change="setPantoneFilterBound(filter.key,'from',$event)"><span>到</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].to" :aria-label="filter.label+'最大值'" @change="setPantoneFilterBound(filter.key,'to',$event)"><span>{{ filter.unit }}</span></div></div><div class="pantone-card-size"><span>色卡大小</span><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><span>{{ pantoneCardWidth }} px</span><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div></div>
-          <div v-if="pagedPantoneColors.length" class="pantone-grid" :style="{'--pantone-card-min':pantoneCardWidth+'px'}"><button v-for="item in pagedPantoneColors" :key="item.code" type="button" class="pantone-swatch" :class="{'is-selected':colorDraft.source==='第三方编号参考' && colorDraft.pantone===item.code}" :aria-label="'参考编号 '+item.code+'，颜色 '+item.hex" @click="choosePantoneColor(item)"><span class="pantone-swatch__color" :style="{background:item.hex}"></span><span class="pantone-swatch__code">{{ item.code }}</span><span class="pantone-swatch__hex">{{ item.hex }}</span></button></div>
-          <div v-else class="field-description" style="padding:28px 0;text-align:center">当前条件下没有匹配颜色，请调整筛选范围或搜索词。</div>
-          <div v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page"><el-pagination background layout="prev, pager, next" :current-page.sync="pantonePage" :page-size="pantonePageSize" :total="filteredPantoneColors.length" :pager-count="5"></el-pagination></div>
+          <div class="pantone-workspace">
+            <section class="pantone-colors-pane" aria-label="潘通参考色卡">
+              <div class="pantone-colors-head"><strong>颜色</strong><span class="pantone-count">{{ filteredPantoneColors.length }} / {{ pantoneColors.length }} 色</span></div>
+              <div ref="pantoneColorsScroll" class="pantone-colors-scroll">
+                <div v-if="pagedPantoneColors.length" class="pantone-grid" :style="{'--pantone-card-min':pantoneCardWidth+'px'}"><button v-for="item in pagedPantoneColors" :key="item.code" type="button" class="pantone-swatch" :class="{'is-selected':colorDraft.source==='第三方编号参考' && colorDraft.pantone===item.code}" :aria-label="'参考编号 '+item.code+'，颜色 '+item.hex" @click="choosePantoneColor(item)"><span class="pantone-swatch__color" :style="{background:item.hex}"></span><span class="pantone-swatch__code">{{ item.code }}</span><span class="pantone-swatch__hex">{{ item.hex }}</span></button></div>
+                <div v-else class="field-description" style="padding:28px 0;text-align:center">当前条件下没有匹配颜色，请调整筛选范围或搜索词。</div>
+              </div>
+              <div v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page"><el-pagination background layout="prev, pager, next" :current-page.sync="pantonePage" :page-size="pantonePageSize" :total="filteredPantoneColors.length" :pager-count="5" @current-change="scrollPantoneColorsTop"></el-pagination></div>
+            </section>
+            <aside class="pantone-controls-pane" aria-label="颜色筛选">
+              <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX，例如 11-0103" aria-label="搜索潘通参考编号或颜色值"></el-input></div>
+              <div class="field-description">第三方 <a href="https://github.com/Margaret2/pantone-colors" target="_blank" rel="noopener noreferrer">Margaret2/pantone-colors</a> 的 FHI 系列编号与 HEX 数据，共 2,310 色；此处不区分 TCX／TPG。HEX 仅供屏幕选色参考，实物、印刷及正式色号请用<a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方资料</a>核对。</div>
+              <div class="pantone-filters"><div class="pantone-filter-hint">在渐变条上按住并拖动选择范围；色相、饱和度、明度会取交集。也可在下方输入精确范围。</div><div v-for="filter in pantoneFilterDefs" :key="filter.key" class="pantone-filter"><div class="pantone-filter-head"><strong>{{ filter.label }}</strong><span>{{ pantoneFilterLabel(filter) }} <button v-if="pantoneFilters[filter.key].active" type="button" :aria-label="'清除'+filter.label+'筛选'" @click="resetPantoneFilter(filter.key)">清除</button></span></div><div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div><div class="pantone-filter-bounds"><span>从</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].from" :aria-label="filter.label+'最小值'" @change="setPantoneFilterBound(filter.key,'from',$event)"><span>到</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].to" :aria-label="filter.label+'最大值'" @change="setPantoneFilterBound(filter.key,'to',$event)"><span>{{ filter.unit }}</span></div></div><div class="pantone-card-size"><span>色卡大小</span><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><span>{{ pantoneCardWidth }} px</span><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div></div>
+            </aside>
+          </div>
         </el-tab-pane>
         <el-tab-pane label="图片吸色" name="eyedropper">
           <div class="color-image-actions"><el-button icon="el-icon-upload2" @click="$refs.colorUploadInput.click()">上传图片（可多选）</el-button><el-button icon="el-icon-brush" @click="pickScreenColor">用吸色笔取屏幕颜色</el-button><input ref="colorUploadInput" type="file" accept="image/*" multiple style="display:none" @change="handleColorUpload"></div>
@@ -857,6 +879,7 @@
         pickWheelCenter: function(){ this.wheelSaturation=0;this.updateWheelColor(); },
         chooseDraftColor: function(hex,source){ if(!this.validColorHex(hex))return;var normalized=hex.toUpperCase();if(this.colorDraft.hex!==normalized||this.colorDraft.source==='第三方编号参考'&&source!=='第三方编号参考')this.colorDraft.pantone='';this.colorDraft.hex=normalized;this.colorDraft.source=source||'色盘选择';this.syncWheelFromHex(this.colorDraft.hex); },
         choosePantoneColor: function(item){ this.colorDraft={hex:item.hex,pantone:item.code,source:'第三方编号参考'};this.syncWheelFromHex(item.hex); },
+        scrollPantoneColorsTop: function(){ if(this.$refs.pantoneColorsScroll)this.$refs.pantoneColorsScroll.scrollTop=0; },
         pantoneFilterDef: function(key){ return this.pantoneFilterDefs.find(function(item){return item.key===key;}); },
         pantoneFilterLabel: function(def){ var range=this.pantoneFilters[def.key];return range.active?range.from+def.unit+'–'+range.to+def.unit:'全部'; },
         pantoneFilterSelectionStyle: function(def){ var range=this.pantoneFilters[def.key];return {left:(range.from/def.max*100)+'%',width:((range.to-range.from)/def.max*100)+'%'}; },
