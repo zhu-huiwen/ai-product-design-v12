@@ -92,18 +92,18 @@
     .color-picker-preview { width:100%; height:70px; margin-bottom:12px; border:1px solid #dfe4ee; border-radius:9px; }
     .color-picker-controls label { display:block; margin:12px 0 5px; color:#606266; font-size:13px; }
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
-    .color-quick-list { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; }
+    .color-quick-list { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:6px; }
     .frequent-color-head { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:0 0 8px; }
     .frequent-color-head strong { color:#303133; font-size:13px; }
     .frequent-color-head small { margin-left:7px; color:#909399; font-size:12px; font-weight:400; }
     .frequent-color-item { position:relative; display:block; min-width:0; border:1px solid #e1e5ee; border-radius:8px; background:#fff; overflow:hidden; }
     .frequent-color-item:hover, .frequent-color-item.is-selected { border-color:#315cf5; }
     .frequent-color-item.is-selected { background:#f2f6ff; box-shadow:0 0 0 1px #315cf5 inset; }
-    .frequent-color-remove { position:absolute; top:7px; right:7px; display:flex; align-items:center; justify-content:center; width:20px; height:20px; padding:0; border:1px solid rgba(0,0,0,.08); border-radius:5px; background:rgba(255,255,255,.9); color:#697386; cursor:pointer; font-size:16px; line-height:1; }
+    .frequent-color-remove { position:absolute; top:5px; right:5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; padding:0; border:1px solid rgba(0,0,0,.08); border-radius:4px; background:rgba(255,255,255,.9); color:#697386; cursor:pointer; font-size:13px; line-height:1; }
     .frequent-color-remove:hover { color:#d14b4b; }
-    .frequent-color-empty { display:flex; min-width:0; flex-direction:column; align-items:center; gap:5px; padding:6px; border:1px dashed #cbd6e6; border-radius:8px; background:#fbfcff; color:#6b7d99; cursor:pointer; font-size:11px; }
+    .frequent-color-empty { display:flex; min-width:0; align-items:center; justify-content:center; padding:4px; border:1px dashed #cbd6e6; border-radius:8px; background:#fbfcff; color:#6b7d99; cursor:pointer; }
     .frequent-color-empty:hover { border-color:#315cf5; color:#315cf5; background:#f5f8ff; }
-    .frequent-color-empty__swatch { display:flex; align-items:center; justify-content:center; width:100%; height:52px; border-radius:5px; background:#f2f5fa; font-size:24px; line-height:1; }
+    .frequent-color-empty__swatch { display:flex; align-items:center; justify-content:center; width:100%; height:44px; border-radius:5px; background:#f2f5fa; font-size:21px; line-height:1; }
     .color-role-flow { margin:14px 0 0; padding:14px; border:1px solid #dfe7f5; border-radius:11px; background:#f8fbff; }
     .color-role-flow__title { display:flex; align-items:baseline; gap:8px; margin-bottom:9px; color:#263447; font-size:14px; }
     .color-role-flow__title span { color:#697386; font-size:12px; font-weight:400; }
@@ -133,8 +133,8 @@
     .color-selection-chip .color-selection-chip__select { display:flex; align-items:center; gap:6px; color:#3d4655; }
     .color-selection-chip button { border:0; background:none; color:#315cf5; cursor:pointer; padding:2px; }
     .color-selection-chip button[aria-label^="移除"] { color:#77818f; font-size:17px; line-height:1; }
-    .color-quick { display:flex; width:100%; min-width:0; flex-direction:column; align-items:center; gap:5px; padding:6px; border:0; border-radius:8px; background:transparent; cursor:pointer; color:#5c6573; font-size:11px; line-height:1.3; }
-    .color-quick__swatch { display:block; width:100%; height:52px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
+    .color-quick { display:block; width:100%; min-width:0; padding:4px; border:0; border-radius:8px; background:transparent; cursor:pointer; }
+    .color-quick__swatch { display:block; width:100%; height:44px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
     .pantone-count { white-space:nowrap; color:#697386; font-size:12px; }
@@ -173,7 +173,7 @@
       .pantone-controls-pane { max-height:none; }
       .color-role-flow__slots { grid-template-columns:1fr; }
     }
-    @media (max-width:500px) { .color-quick-list { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media (max-width:500px) { .color-quick-list { grid-template-columns:repeat(10,44px); overflow-x:auto; padding-bottom:4px; } }
     .color-result-strip { margin:0 0 16px; }
     .color-result-strip__swatch, .color-detail-row__swatch { width:32px; height:32px; }
     .color-card-meta { display:flex; align-items:center; gap:6px; margin:10px 0 0; color:#606266; font-size:12px; }
@@ -756,7 +756,7 @@
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
           <div class="frequent-color-head"><div><strong>常用色</strong><small>{{ frequentColors.length }}/10 色 · 点击色块试色，点击空位保存当前颜色</small></div></div>
-          <div class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span><button v-for="slot in (10-frequentColors.length)" :key="'empty-'+slot" type="button" class="frequent-color-empty" :aria-label="'将当前颜色加入常用色，空位 '+(frequentColors.length+slot)" @click="addFrequentColor"><span class="frequent-color-empty__swatch">＋</span><span>添加颜色</span></button></div>
+          <div class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" :title="hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span></button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span><button v-for="slot in (10-frequentColors.length)" :key="'empty-'+slot" type="button" class="frequent-color-empty" :aria-label="'将当前颜色加入常用色，空位 '+(frequentColors.length+slot)" title="添加当前颜色" @click="addFrequentColor"><span class="frequent-color-empty__swatch">＋</span></button></div>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
           <div class="pantone-workspace">
