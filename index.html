@@ -93,34 +93,30 @@
     .color-picker-controls label { display:block; margin:12px 0 5px; color:#606266; font-size:13px; }
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
     .color-quick-list { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:6px; }
-    .frequent-color-section { margin-top:4px; border:1px solid #dce6f7; border-radius:11px; background:#f8fbff; overflow:hidden; }
-    .frequent-color-toggle { display:flex; align-items:center; gap:11px; width:100%; min-height:62px; padding:11px 14px; border:0; background:transparent; color:#303d55; cursor:pointer; text-align:left; }
-    .frequent-color-toggle:hover,.frequent-color-toggle:focus-visible { background:#edf4ff; outline:none; }
-    .frequent-color-icon { display:grid; grid-template-columns:repeat(2,8px); grid-template-rows:repeat(2,8px); align-content:center; justify-content:center; gap:3px; flex:none; width:36px; height:36px; border-radius:9px; background:#e8f0ff; }
-    .frequent-color-icon i { border-radius:2px; background:#90c8e8; }
-    .frequent-color-icon i:nth-child(2) { background:#a7d7bd; }
-    .frequent-color-icon i:nth-child(3) { background:#f5d4b4; }
-    .frequent-color-icon i:nth-child(4) { background:#cabdea; }
-    .frequent-color-title { display:flex; flex-direction:column; gap:2px; min-width:0; }
-    .frequent-color-title strong { font-size:14px; line-height:1.2; }
-    .frequent-color-title small { color:#7b8799; font-size:11px; }
-    .frequent-color-preview { display:flex; align-items:center; margin-left:auto; padding-left:8px; }
-    .frequent-color-preview span { width:15px; height:15px; margin-left:-5px; border:2px solid #f8fbff; border-radius:50%; box-shadow:0 0 0 1px #dce4ee; }
-    .frequent-color-action { display:flex; align-items:center; gap:6px; margin-left:10px; padding:6px 9px; border:1px solid #cbdafe; border-radius:7px; background:#fff; color:#315cf5; font-size:12px; font-weight:600; white-space:nowrap; }
+    .frequent-color-section { margin-top:4px; border:1px solid #e0e4ec; border-radius:22px; background:#f5f6f8; }
+    .frequent-color-toggle { display:flex; align-items:center; gap:10px; width:100%; min-height:44px; padding:7px 11px 7px 14px; border:0; border-radius:22px; background:transparent; color:#303d55; cursor:pointer; text-align:left; }
+    .frequent-color-toggle:hover,.frequent-color-toggle:focus-visible { background:#eaf0fb; outline:none; }
+    .frequent-color-title { display:flex; align-items:baseline; gap:7px; min-width:0; white-space:nowrap; }
+    .frequent-color-title strong { font-size:13px; line-height:1.2; }
+    .frequent-color-title small { color:#8993a1; font-size:11px; }
+    .frequent-color-preview { display:flex; align-items:center; gap:7px; margin-left:auto; padding-left:8px; }
+    .frequent-color-preview span { width:19px; height:19px; border:1px solid rgba(0,0,0,.12); border-radius:50%; box-shadow:0 0 0 2px #fff; }
+    .frequent-color-action { display:flex; align-items:center; gap:5px; margin-left:8px; padding:5px 9px; border:1px solid #d8e0ed; border-radius:16px; background:#fff; color:#315cf5; font-size:12px; font-weight:600; white-space:nowrap; }
     .frequent-color-chevron { display:inline-block; font-size:15px; line-height:1; transition:transform .15s; }
     .frequent-color-chevron.is-expanded { transform:rotate(180deg); }
-    .frequent-color-section .color-quick-list { padding:12px 14px 14px; border-top:1px solid #e5ecf7; background:#fff; }
+    .frequent-color-section .color-quick-list { padding:12px 14px 14px; border-top:1px solid #e5e8ef; border-radius:0 0 22px 22px; background:#fff; }
     @media (max-width:500px) { .frequent-color-preview { display:none; } .frequent-color-action { margin-left:auto; } }
-    .frequent-color-item { position:relative; display:block; min-width:0; border:1px solid #e1e5ee; border-radius:8px; background:#fff; overflow:hidden; }
+    .frequent-color-item { position:relative; display:block; min-width:0; aspect-ratio:1; border:1px solid transparent; border-radius:50%; background:#fff; }
     .frequent-color-item:hover, .frequent-color-item.is-selected { border-color:#315cf5; }
-    .frequent-color-item.is-selected { background:#f2f6ff; box-shadow:0 0 0 1px #315cf5 inset; }
-    .frequent-color-remove { position:absolute; top:5px; right:5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; padding:0; border:1px solid rgba(0,0,0,.08); border-radius:4px; background:rgba(255,255,255,.9); color:#697386; cursor:pointer; font-size:13px; line-height:1; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s; }
+    .frequent-color-item.is-selected { box-shadow:0 0 0 1px #315cf5 inset; }
+    .frequent-color-item .color-quick,.frequent-color-item .color-quick__swatch { height:100%; border-radius:50%; }
+    .frequent-color-remove { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:18px; height:18px; padding:0; border:1px solid rgba(0,0,0,.08); border-radius:50%; background:#fff; color:#697386; cursor:pointer; font-size:13px; line-height:1; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s; }
     .frequent-color-item:hover .frequent-color-remove, .frequent-color-item:focus-within .frequent-color-remove { opacity:1; visibility:visible; pointer-events:auto; }
     .frequent-color-remove:hover { color:#d14b4b; }
     @media (hover:none) { .frequent-color-remove { opacity:1; visibility:visible; pointer-events:auto; } }
-    .frequent-color-empty { display:flex; min-width:0; align-items:center; justify-content:center; padding:4px; border:1px dashed #cbd6e6; border-radius:8px; background:#fbfcff; color:#6b7d99; cursor:pointer; }
+    .frequent-color-empty { display:flex; min-width:0; aspect-ratio:1; align-items:center; justify-content:center; padding:4px; border:1px dashed #aebbd0; border-radius:50%; background:#fbfcff; color:#6b7d99; cursor:pointer; }
     .frequent-color-empty:hover { border-color:#315cf5; color:#315cf5; background:#f5f8ff; }
-    .frequent-color-empty__swatch { display:flex; align-items:center; justify-content:center; width:100%; height:44px; border-radius:5px; background:#f2f5fa; font-size:21px; line-height:1; }
+    .frequent-color-empty__swatch { display:flex; align-items:center; justify-content:center; width:100%; height:100%; border-radius:50%; background:#f2f5fa; font-size:21px; line-height:1; }
     .color-role-flow { margin:14px 0 0; padding:14px; border:1px solid #dfe7f5; border-radius:11px; background:#f8fbff; }
     .color-role-flow__title { display:flex; align-items:baseline; gap:8px; margin-bottom:9px; color:#263447; font-size:14px; }
     .color-role-flow__title span { color:#697386; font-size:12px; font-weight:400; }
@@ -772,7 +768,7 @@
             </div>
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
-          <div class="frequent-color-section"><button type="button" class="frequent-color-toggle" :aria-expanded="frequentColorsExpanded" aria-controls="frequent-color-list" @click="frequentColorsExpanded=!frequentColorsExpanded"><span class="frequent-color-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="frequent-color-title"><strong>我的常用色</strong><small>已收藏 {{ frequentColors.length }}/10 色</small></span><span v-if="!frequentColorsExpanded && frequentColors.length" class="frequent-color-preview" aria-hidden="true"><span v-for="(hex,index) in frequentColors.slice(0,5)" :key="index" :style="{background:hex}"></span></span><span class="frequent-color-action">{{ frequentColorsExpanded?'收起色卡':'展开色卡' }} <span class="frequent-color-chevron" :class="{'is-expanded':frequentColorsExpanded}" aria-hidden="true">⌄</span></span></button>
+          <div class="frequent-color-section"><button type="button" class="frequent-color-toggle" :aria-expanded="frequentColorsExpanded" aria-controls="frequent-color-list" @click="frequentColorsExpanded=!frequentColorsExpanded"><span class="frequent-color-title"><strong>常用颜色</strong><small>{{ frequentColors.length }}/10</small></span><span v-if="!frequentColorsExpanded && frequentColors.length" class="frequent-color-preview" aria-hidden="true"><span v-for="(hex,index) in frequentColors.slice(0,6)" :key="index" :style="{background:hex}"></span></span><span class="frequent-color-action">{{ frequentColorsExpanded?'收起':'展开' }} <span class="frequent-color-chevron" :class="{'is-expanded':frequentColorsExpanded}" aria-hidden="true">⌄</span></span></button>
           <div id="frequent-color-list" v-show="frequentColorsExpanded" class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" :title="hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span></button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span><button v-if="frequentColors.length<10" type="button" class="frequent-color-empty" aria-label="将当前颜色加入常用色" title="添加当前颜色" @click="addFrequentColor"><span class="frequent-color-empty__swatch">＋</span></button></div></div>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
