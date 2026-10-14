@@ -93,7 +93,29 @@
     .color-picker-controls label { display:block; margin:12px 0 5px; color:#606266; font-size:13px; }
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
     .color-quick-list { display:flex; gap:9px; flex-wrap:wrap; }
-    .color-image-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
+    .color-role-flow { margin:14px 0 0; padding:14px; border:1px solid #dfe7f5; border-radius:11px; background:#f8fbff; }
+    .color-role-flow__title { display:flex; align-items:baseline; gap:8px; margin-bottom:9px; color:#263447; font-size:14px; }
+    .color-role-flow__title span { color:#697386; font-size:12px; font-weight:400; }
+    .color-role-flow__current { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .color-role-flow__current .main-color-card__swatch { width:36px; height:36px; }
+    .color-role-flow__current-copy { display:flex; flex:1; min-width:150px; flex-direction:column; gap:2px; }
+    .color-role-flow__current-copy strong { font-size:13px; color:#303133; }
+    .color-role-flow__current-copy small { color:#697386; font-size:11px; }
+    .color-role-flow__slots { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:10px; margin-top:12px; }
+    .color-role-slot { min-width:0; padding:10px; border:1px solid #e1e7f0; border-radius:9px; background:#fff; }
+    .color-role-slot--primary { border-color:#b8caff; }
+    .color-role-slot__head { display:flex; align-items:center; gap:6px; margin-bottom:8px; font-size:12px; font-weight:600; color:#303d55; }
+    .color-role-slot__head small { font-size:11px; font-weight:400; color:#8792a2; }
+    .color-role-slot__empty { padding:8px 0; color:#8994a4; font-size:12px; }
+    .color-role-slot__item { display:flex; align-items:center; gap:8px; min-width:0; }
+    .color-role-slot__item .color-selection-chip__swatch { width:31px; height:31px; }
+    .color-role-slot__item-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:2px; }
+    .color-role-slot__item-copy strong { color:#303133; font-size:12px; }
+    .color-role-slot__item-copy small { overflow:hidden; color:#8792a2; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+    .color-role-slot__actions { display:flex; align-items:center; gap:7px; flex:none; }
+    .color-role-slot__actions button { border:0; background:none; color:#315cf5; font-size:11px; cursor:pointer; }
+    .color-role-slot__actions button:last-child { color:#8994a4; font-size:17px; line-height:1; }
+    .color-role-slot__list { display:flex; flex-direction:column; gap:8px; max-height:150px; overflow-y:auto; }
     .color-selection-list { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
     .color-selection-chip { display:flex; align-items:center; gap:7px; padding:6px 8px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; color:#3d4655; font-size:12px; }
     .color-selection-chip__swatch { width:23px; height:23px; border:1px solid rgba(0,0,0,.12); border-radius:5px; flex:none; }
@@ -139,6 +161,7 @@
       .pantone-workspace { grid-template-columns:1fr; }
       .pantone-colors-pane { height:45vh; }
       .pantone-controls-pane { max-height:none; }
+      .color-role-flow__slots { grid-template-columns:1fr; }
     }
     .color-result-strip { margin:0 0 16px; }
     .color-result-strip__swatch, .color-detail-row__swatch { width:32px; height:32px; }
@@ -709,6 +732,7 @@
     </el-dialog>
 
     <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
+      <div class="field-description" style="margin:0 0 8px">第 1 步：在色盘或潘通编号参考中选颜色。第 2 步：在下方设为主色，再按需加入参考色。</div>
       <el-tabs v-model="colorTab">
         <el-tab-pane label="色盘" name="wheel">
           <div class="color-picker-layout color-picker-layout--wheel">
@@ -742,10 +766,15 @@
         </el-tab-pane>
 
       </el-tabs>
-      <div class="color-picker-layout" style="padding-bottom:0"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><div class="color-picker-controls"><strong>本次选色 {{ colorDraft.hex }}</strong><div v-if="colorDraft.pantone" class="field-description">{{ pantoneOriginText(colorDraft) }} {{ colorDraft.pantone }} · 屏幕颜色仅供参考</div></div></div>
-      <div class="color-image-actions"><el-button icon="el-icon-plus" @click="addDraftColor">加入这组颜色</el-button><span class="field-description">最多 8 色；首个为主色，其余是可选参考，不要求全部用于生成图。</span></div>
-      <div v-if="colorSelections.length" class="color-selection-list"><span v-for="(item,index) in colorSelections" :key="item.hex" class="color-selection-chip"><button type="button" class="color-selection-chip__select" :aria-label="'查看'+item.hex" @click="selectGroupColor(item)"><span class="color-selection-chip__swatch" :style="{background:item.hex}"></span>{{ index===0?'主色':'参考色' }} {{ item.hex }}<small v-if="item.pantone"> · {{ item.pantone }}</small></button><button v-if="index>0" type="button" :aria-label="'将'+item.hex+'设为主色'" @click="setPrimaryColor(index)">设为主色</button><button type="button" :aria-label="'移除'+item.hex" @click="removeDraftColor(index)">×</button></span></div>
-      <span slot="footer"><el-button @click="colorDialogVisible=false">取消</el-button><el-button type="primary" @click="applyMainColor">使用这组颜色</el-button></span>
+      <section class="color-role-flow" aria-label="组合产品配色">
+        <div class="color-role-flow__title"><strong>第 2 步 · 组合产品配色</strong><span>先选主色，参考色可不选；最多 8 色</span></div>
+        <div class="color-role-flow__current"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><span class="color-role-flow__current-copy"><strong>当前选中 {{ colorDraft.hex }}</strong><small v-if="colorDraft.pantone">{{ pantoneOriginText(colorDraft) }} {{ colorDraft.pantone }}</small><small v-else>可作为产品主色或参考色</small></span><el-button type="primary" icon="el-icon-plus" @click="addDraftColor">{{ colorDraftActionLabel }}</el-button></div>
+        <div class="color-role-flow__slots">
+          <div class="color-role-slot color-role-slot--primary"><div class="color-role-slot__head">产品主色 <small>确定产品的主要颜色</small></div><div v-if="colorSelections.length" class="color-role-slot__item"><span class="color-selection-chip__swatch" :style="{background:colorSelections[0].hex}"></span><span class="color-role-slot__item-copy"><strong>{{ colorSelections[0].hex }}</strong><small v-if="colorSelections[0].pantone">{{ colorSelections[0].pantone }}</small></span><span class="color-role-slot__actions"><button type="button" @click="selectGroupColor(colorSelections[0])">查看</button><button type="button" :aria-label="'移除主色'+colorSelections[0].hex" @click="removeDraftColor(0)">×</button></span></div><div v-else class="color-role-slot__empty">尚未选择主色，请点击上方“设为主色”</div></div>
+          <div class="color-role-slot"><div class="color-role-slot__head">参考色 <small>可选，供 AI 灵活搭配</small></div><div v-if="colorSelections.length>1" class="color-role-slot__list"><div v-for="(item,index) in colorSelections.slice(1)" :key="item.hex" class="color-role-slot__item"><span class="color-selection-chip__swatch" :style="{background:item.hex}"></span><span class="color-role-slot__item-copy"><strong>{{ item.hex }}</strong><small v-if="item.pantone">{{ item.pantone }}</small></span><span class="color-role-slot__actions"><button type="button" @click="setPrimaryColor(index+1)">设为主色</button><button type="button" :aria-label="'移除参考色'+item.hex" @click="removeDraftColor(index+1)">×</button></span></div></div><div v-else class="color-role-slot__empty">暂未添加；只选主色也可以保存</div></div>
+        </div>
+      </section>
+      <span slot="footer"><el-button @click="colorDialogVisible=false">取消</el-button><el-button type="primary" :disabled="!colorSelections.length" @click="applyMainColor">保存产品配色</el-button></span>
     </el-dialog>
 
     <el-dialog title="V1.1 验收口径" :visible.sync="acceptanceVisible" width="760px" append-to-body data-modal-id="acceptance-rules">
@@ -832,6 +861,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         filteredPantoneColors: function(){ var query=(this.pantoneQuery||'').trim().toUpperCase().replace(/^#/,''),filters=this.pantoneFilters;return this.pantoneColors.filter(function(item){if(query&&item.code.indexOf(query)===-1&&item.hex.slice(1).indexOf(query)===-1)return false;return ['h','s','l'].every(function(key){var range=filters[key],value=item.hsl[key];return !range.active||value>=range.from&&value<=range.to;});}); },
         pagedPantoneColors: function(){ var start=(this.pantonePage-1)*this.pantonePageSize;return this.filteredPantoneColors.slice(start,start+this.pantonePageSize); },
         colorWheelCursor: function(){ var radians=this.wheelHue*Math.PI/180;var radius=this.wheelSaturation/100*108;return {left:(112+Math.sin(radians)*radius)+'px',top:(112-Math.cos(radians)*radius)+'px'}; },
+        colorDraftActionLabel: function(){ var index=this.colorSelections.findIndex(function(item){return item.hex===this.colorDraft.hex;}.bind(this));if(index===0)return '更新主色';if(index>0)return '更新参考色';return this.colorSelections.length?'加入参考色':'设为主色'; },
         selectedDirections: function(){ return this.directions.filter(function(item){return item.selected;}); },
         hasSplicedPrompt: function(){ return Boolean(this.splicedPrompt && this.splicedPrompt.trim()); },
         hasSpliceSchemeReference: function(){ return Boolean(this.spliceScheme.references.length||this.spliceScheme.textReferences.length); },
@@ -888,11 +918,11 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         pickScreenColor: function(){ if(!window.EyeDropper){this.$message.warning('当前浏览器不支持屏幕吸色笔，请用桌面版 Chrome／Edge 打开公开网址，或直接输入 HEX 颜色值');return;}var self=this;new window.EyeDropper().open().then(function(result){self.chooseDraftColor(result.sRGBHex,'屏幕吸色');self.$message.success('已吸取屏幕颜色 '+result.sRGBHex.toUpperCase());}).catch(function(error){if(error&&error.name!=='AbortError')self.$message.error('屏幕吸色未完成，请重试');}); },
         persistColorState: function(){ try{localStorage.setItem(this.colorStorageKey,JSON.stringify({mainColor:this.planning.mainColor,additionalColors:this.planning.additionalColors}));}catch(e){} },
         restoreColorState: function(){ try{var saved=JSON.parse(localStorage.getItem(this.colorStorageKey)||'{}');if(saved.mainColor&&this.validColorHex(saved.mainColor.hex))this.planning.mainColor={hex:saved.mainColor.hex.toUpperCase(),pantone:(saved.mainColor.pantone||'').slice(0,32),source:saved.mainColor.source||'已保存主色'};if(Array.isArray(saved.additionalColors))this.planning.additionalColors=saved.additionalColors.filter(function(item){return item&&this.validColorHex(item.hex);}.bind(this)).slice(0,7).map(function(item){return {hex:item.hex.toUpperCase(),pantone:(item.pantone||'').slice(0,32),source:item.source||'选色'};});}catch(e){} },
-        addDraftColor: function(){ if(!this.normalizeColorHex())return;var hex=this.colorDraft.hex;var existing=this.colorSelections.findIndex(function(item){return item.hex===hex;});if(existing!==-1){this.$set(this.colorSelections,existing,{hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已更新 '+hex+' 的编号信息');return;}if(this.colorSelections.length>=8){this.$message.warning('最多加入 8 个颜色');return;}this.colorSelections.push({hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已加入 '+hex); },
+        addDraftColor: function(){ if(!this.normalizeColorHex())return;var hex=this.colorDraft.hex;var existing=this.colorSelections.findIndex(function(item){return item.hex===hex;});if(existing!==-1){this.$set(this.colorSelections,existing,{hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已更新'+(existing===0?'主色 ':'参考色 ')+hex);return;}if(this.colorSelections.length>=8){this.$message.warning('最多加入 8 个颜色');return;}var isPrimary=this.colorSelections.length===0;this.colorSelections.push({hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已'+(isPrimary?'设为主色 ':'加入参考色 ')+hex); },
         selectGroupColor: function(item){ this.colorDraft=Object.assign({},item);this.syncWheelFromHex(item.hex); },
         setPrimaryColor: function(index){ if(index<1||index>=this.colorSelections.length)return;this.colorSelections.unshift(this.colorSelections.splice(index,1)[0]);this.selectGroupColor(this.colorSelections[0]); },
         removeDraftColor: function(index){ this.colorSelections.splice(index,1);if(this.colorSelections.length)this.selectGroupColor(this.colorSelections[0]); },
-        applyMainColor: function(){ if(this.isViewer||!this.normalizeColorHex())return;if(!this.colorSelections.length)this.addDraftColor();else if(!this.colorSelections.some(function(item){return item.hex===this.colorDraft.hex;}.bind(this))){this.$message.warning('请先点击「加入这组颜色」，再保存');return;}if(!this.colorSelections.length)return;this.planning.mainColor=Object.assign({},this.colorSelections[0]);this.planning.additionalColors=this.colorSelections.slice(1).map(function(item){return Object.assign({},item);});this.persistColorState();this.colorDialogVisible=false;this.$message.success('已保存 '+this.colorSelections.length+' 个颜色'); },
+        applyMainColor: function(){ if(this.isViewer||!this.normalizeColorHex())return;if(!this.colorSelections.length){this.$message.warning('请先设定产品主色');return;}if(!this.colorSelections.some(function(item){return item.hex===this.colorDraft.hex;}.bind(this))){this.$message.warning('当前选中的颜色尚未加入配色，请先点击「加入参考色」');return;}this.planning.mainColor=Object.assign({},this.colorSelections[0]);this.planning.additionalColors=this.colorSelections.slice(1).map(function(item){return Object.assign({},item);});this.persistColorState();this.colorDialogVisible=false;this.$message.success('已保存 '+this.colorSelections.length+' 个颜色'); },
         clearMainColor: function(){ if(this.isViewer)return;this.planning.mainColor={hex:'',pantone:'',source:''};this.planning.additionalColors=[];this.persistColorState();this.$message.success('已清除本组颜色'); },
         goPage: function(page){ if(page==='creative'&&!this.creatives.length){this.$message.warning('请先在企划输入中生成至少 1 张成功创意图');return;} this.currentPage=page;this.activeMenu=page==='history'?'history':'product'; },
         startNewDesign: function(){
