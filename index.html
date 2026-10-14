@@ -80,7 +80,12 @@
     .color-dialog { margin-top:5vh !important; }
     .color-dialog .el-dialog__body { max-height:calc(80vh - 112px); overflow-y:auto; padding-top:8px; }
     .color-picker-layout { display:flex; align-items:center; gap:26px; padding:12px 0 18px; }
+    .color-picker-layout--wheel { gap:16px; }
+    .color-wheel-group { display:flex; align-items:center; gap:8px; flex:none; }
     .color-wheel { position:relative; width:224px; height:224px; flex:none; border-radius:50%; cursor:crosshair; touch-action:none; user-select:none; background:radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 70%), conic-gradient(red, yellow, lime, cyan, blue, magenta, red); box-shadow:0 0 0 1px #d8deeb, 0 7px 22px rgba(31,56,105,.12); }
+    .color-wheel-eyedropper { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; width:48px; height:62px; padding:4px; border:1px solid #cbd7eb; border-radius:9px; background:#f8fbff; color:#315cf5; cursor:pointer; font-size:11px; white-space:nowrap; }
+    .color-wheel-eyedropper:hover,.color-wheel-eyedropper:focus-visible { border-color:#315cf5; background:#edf4ff; outline:none; }
+    .color-wheel-eyedropper svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
     .color-wheel__shade { position:absolute; inset:0; border-radius:50%; pointer-events:none; background:#000; }
     .color-wheel__cursor { position:absolute; width:15px; height:15px; border:2px solid #fff; border-radius:50%; box-shadow:0 0 0 1px #27324a, 0 1px 5px rgba(0,0,0,.3); transform:translate(-50%,-50%); pointer-events:none; }
     .color-picker-controls { flex:1; min-width:0; }
@@ -89,9 +94,8 @@
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
     .color-quick-list, .color-source-list { display:flex; gap:9px; flex-wrap:wrap; }
     .color-image-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
-    .color-image-paste { display:flex; align-items:center; min-height:68px; padding:12px 14px; border:1px dashed #c8d4e5; border-radius:9px; background:#f8fbff; color:#606b7c; font-size:13px; line-height:1.6; }
-    .color-image-section { margin-top:18px; padding-top:16px; border-top:1px solid #e6eaf1; }
-    .color-image-section h3 { margin:0 0 8px; color:#303133; font-size:14px; }
+    .color-image-compact { margin-top:12px; padding-top:8px; border-top:1px solid #e6eaf1; }
+    .color-image-compact__actions { display:flex; align-items:center; gap:8px; color:#858990; font-size:12px; }
     .color-selection-list { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
     .color-selection-chip { display:flex; align-items:center; gap:7px; padding:6px 8px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; color:#3d4655; font-size:12px; }
     .color-selection-chip__swatch { width:23px; height:23px; border:1px solid rgba(0,0,0,.12); border-radius:5px; flex:none; }
@@ -716,21 +720,21 @@
     <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
       <el-tabs v-model="colorTab">
         <el-tab-pane label="色盘" name="wheel">
-          <div class="color-picker-layout">
-            <div class="color-wheel" role="button" tabindex="0" aria-label="在色盘上点击或拖动选择颜色" @pointerdown="startWheelDrag" @pointermove="moveWheelDrag" @pointerup="endWheelDrag" @pointercancel="cancelWheelDrag" @lostpointercapture="cancelWheelDrag" @keydown.enter="pickWheelCenter" @keydown.space.prevent="pickWheelCenter">
-              <span class="color-wheel__shade" :style="{opacity:1-wheelBrightness/100}"></span><span class="color-wheel__cursor" :style="colorWheelCursor"></span>
+          <div class="color-picker-layout color-picker-layout--wheel">
+            <div class="color-wheel-group">
+              <div class="color-wheel" role="button" tabindex="0" aria-label="在色盘上点击或拖动选择颜色" @pointerdown="startWheelDrag" @pointermove="moveWheelDrag" @pointerup="endWheelDrag" @pointercancel="cancelWheelDrag" @lostpointercapture="cancelWheelDrag" @keydown.enter="pickWheelCenter" @keydown.space.prevent="pickWheelCenter">
+                <span class="color-wheel__shade" :style="{opacity:1-wheelBrightness/100}"></span><span class="color-wheel__cursor" :style="colorWheelCursor"></span>
+              </div>
+              <button type="button" class="color-wheel-eyedropper" aria-label="用吸色笔取屏幕颜色" title="吸取屏幕颜色" @click="pickScreenColor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1-4 9-9 3 3-9 9-4 1Z"></path><path d="m12 6 6 6"></path><path d="m15 5 2-2a3 3 0 0 1 4 4l-2 2"></path></svg><span>吸色笔</span></button>
             </div>
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone=''" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
-          <section ref="colorImageSection" class="color-image-section">
-            <h3>图片与屏幕吸色</h3>
-            <div class="color-image-actions"><el-button icon="el-icon-upload2" @click="$refs.colorUploadInput.click()">上传图片（可多选）</el-button><el-button icon="el-icon-brush" @click="pickScreenColor">用吸色笔取屏幕颜色</el-button><input ref="colorUploadInput" type="file" accept="image/*" multiple style="display:none" @change="handleColorUpload"></div>
-            <div class="color-image-paste" tabindex="0">复制图片后，在此弹窗按 ⌘V／Ctrl+V 即可粘贴。屏幕吸色笔可取网页或其他窗口的颜色；浏览器不支持时会给出提示。</div>
-            <div v-if="availableColorImages.length"><div class="field-description">选择下方图片，点击目标颜色，然后点「加入这组颜色」；一张图可以多次吸色。</div><div class="color-source-list" style="margin-top:10px"><span v-for="item in availableColorImages" :key="item.key" class="color-source-wrap"><button type="button" class="color-source" :class="{'is-active':colorImageKey===item.key}" @click="colorImageKey=item.key"><img :src="item.url" :alt="item.label">{{ item.label }}</button><button v-if="item.key.indexOf('uploaded-color-image-')===0" type="button" class="color-source-remove" :aria-label="'移除'+item.label" @click="removeColorImage(item.key)">×</button></span></div><img v-if="activeColorImage" ref="colorSampleImage" class="color-sample-image" :src="activeColorImage.url" :alt="activeColorImage.label+'，点击吸色'" @click="sampleImageColor"></div>
-            <div v-else class="field-description">也可以使用企划里已上传的参考图片，或生成的创意图。</div>
-          </section>
           <div class="field-description" style="margin:0 0 8px">浅彩参考色 · 根据你提供的图片提炼的屏幕近似色，不是高频用色或潘通色号</div>
           <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" @click="chooseDraftColor(hex,'浅彩参考色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
+          <section ref="colorImageSection" class="color-image-compact">
+            <div class="color-image-compact__actions"><el-button type="text" icon="el-icon-upload2" @click="$refs.colorUploadInput.click()">从图片取色</el-button><span>也可直接粘贴图片</span><input ref="colorUploadInput" type="file" accept="image/*" multiple style="display:none" @change="handleColorUpload"></div>
+            <div v-if="availableColorImages.length"><div class="field-description">点击图片取色。</div><div class="color-source-list" style="margin-top:10px"><span v-for="item in availableColorImages" :key="item.key" class="color-source-wrap"><button type="button" class="color-source" :class="{'is-active':colorImageKey===item.key}" @click="colorImageKey=item.key"><img :src="item.url" :alt="item.label">{{ item.label }}</button><button v-if="item.key.indexOf('uploaded-color-image-')===0" type="button" class="color-source-remove" :aria-label="'移除'+item.label" @click="removeColorImage(item.key)">×</button></span></div><img v-if="activeColorImage" ref="colorSampleImage" class="color-sample-image" :src="activeColorImage.url" :alt="activeColorImage.label+'，点击吸色'" @click="sampleImageColor"></div>
+          </section>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
           <div class="pantone-workspace">
