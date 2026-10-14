@@ -93,6 +93,15 @@
     .color-picker-controls label { display:block; margin:12px 0 5px; color:#606266; font-size:13px; }
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
     .color-quick-list { display:flex; gap:9px; flex-wrap:wrap; }
+    .frequent-color-head { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:0 0 8px; }
+    .frequent-color-head strong { color:#303133; font-size:13px; }
+    .frequent-color-head small { margin-left:7px; color:#909399; font-size:12px; font-weight:400; }
+    .frequent-color-head .el-button { padding:4px 0; }
+    .frequent-color-item { display:inline-flex; align-items:center; border:1px solid #e1e5ee; border-radius:8px; background:#fff; }
+    .frequent-color-item:hover, .frequent-color-item.is-selected { border-color:#315cf5; }
+    .frequent-color-item.is-selected { background:#f2f6ff; box-shadow:0 0 0 1px #315cf5 inset; }
+    .frequent-color-remove { display:flex; align-items:center; justify-content:center; width:25px; align-self:stretch; padding:0; border:0; border-left:1px solid #e8ecf3; background:transparent; color:#8792a2; cursor:pointer; font-size:17px; }
+    .frequent-color-remove:hover { color:#d14b4b; }
     .color-role-flow { margin:14px 0 0; padding:14px; border:1px solid #dfe7f5; border-radius:11px; background:#f8fbff; }
     .color-role-flow__title { display:flex; align-items:baseline; gap:8px; margin-bottom:9px; color:#263447; font-size:14px; }
     .color-role-flow__title span { color:#697386; font-size:12px; font-weight:400; }
@@ -122,9 +131,7 @@
     .color-selection-chip .color-selection-chip__select { display:flex; align-items:center; gap:6px; color:#3d4655; }
     .color-selection-chip button { border:0; background:none; color:#315cf5; cursor:pointer; padding:2px; }
     .color-selection-chip button[aria-label^="移除"] { color:#77818f; font-size:17px; line-height:1; }
-    .color-quick { display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid #e1e5ee; border-radius:8px; background:#fff; cursor:pointer; }
-    .color-quick:hover, .color-quick.is-selected { border-color:#315cf5; }
-    .color-quick.is-selected { background:#f2f6ff; box-shadow:0 0 0 1px #315cf5 inset; }
+    .color-quick { display:flex; align-items:center; gap:7px; padding:7px 9px; border:0; border-radius:8px; background:transparent; cursor:pointer; }
     .color-quick__swatch { width:22px; height:22px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
@@ -745,8 +752,9 @@
             </div>
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
-          <div class="field-description" style="margin:0 0 8px"><strong>快捷试色</strong> · 点一下即可预览颜色；喜欢的话，再在下方设为主色或加入参考色。这里的浅彩颜色仅作试色展示。</div>
-          <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" :class="{'is-selected':colorDraft.hex===hex}" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用颜色 '+hex" @click="chooseDraftColor(hex,'快捷试色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
+          <div class="frequent-color-head"><div><strong>常用色</strong><small>{{ frequentColors.length }}/10 色 · 点击色块试色，可自行添加或删除</small></div><el-button type="text" icon="el-icon-plus" :disabled="frequentColors.length>=10" @click="addFrequentColor">保存当前颜色到常用色</el-button></div>
+          <div v-if="frequentColors.length" class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span></div>
+          <div v-else class="field-description">还没有常用色。先在色盘选色，再点击“保存当前颜色到常用色”。</div>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
           <div class="pantone-workspace">
@@ -825,7 +833,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           planningMessage: '请填写企划需求；关键操作后自动保存。', planningMessageType: 'info',
           promptLoading: false, imageLoading: false, showRetryButton: false, promptDialogVisible: false, previewDialogVisible: false,
           acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, historyDrawerVisible: false,
-          colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', quickColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:100, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
+          colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:100, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
           imageKinds: [{key:'sketch',label:'线稿'},{key:'competitor',label:'竞品'},{key:'creative',label:'创意'}],
@@ -887,7 +895,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         pantoneFilters: {deep:true,handler:function(){ this.pantonePage=1; }},
         isCurrentPromptOutdated: function(isOutdated,wasOutdated){ if(this.promptOutdatedToastReady&&isOutdated&&!wasOutdated)this.$message.warning('企划输入已修改，当前方案待更新'); }
       },
-      created: function(){ var self=this;this.restoreColorState();this.restorePromptResults();this.$nextTick(function(){self.promptOutdatedToastReady=true;}); },
+      created: function(){ var self=this;this.restoreColorState();this.restoreFrequentColors();this.restorePromptResults();this.$nextTick(function(){self.promptOutdatedToastReady=true;}); },
       methods: {
         validColorHex: function(value){ return /^#[0-9a-fA-F]{6}$/.test((value||'').trim()); },
         hsvToHex: function(h,s,v){ s/=100;v/=100;var c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c,r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}return '#'+[r,g,b].map(function(n){return Math.round((n+m)*255).toString(16).padStart(2,'0');}).join('').toUpperCase(); },
@@ -917,6 +925,10 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         normalizeColorHex: function(){ var hex=(this.colorDraft.hex||'').trim();if(/^[0-9a-fA-F]{6}$/.test(hex))hex='#'+hex;if(!this.validColorHex(hex)){this.$message.error('请输入 6 位十六进制颜色值，例如 #A8C9D8');return false;}this.chooseDraftColor(hex,this.colorDraft.source);return true; },
         openColorDialog: function(tab){ if(this.isViewer)return;var current=this.planning.mainColor;this.colorSelections=(current.hex?[Object.assign({},current)]:[]).concat((this.planning.additionalColors||[]).map(function(item){return Object.assign({},item);}));this.colorDraft={hex:current.hex||'#DCECF8',pantone:current.pantone||'',source:current.source||'色盘选择'};this.syncWheelFromHex(this.colorDraft.hex);this.colorTab=tab==='pantone'?'pantone':'wheel';this.colorDialogVisible=true; },
         pickScreenColor: function(){ if(!window.EyeDropper){this.$message.warning('当前浏览器不支持屏幕吸色笔，请用桌面版 Chrome／Edge 打开公开网址，或直接输入 HEX 颜色值');return;}var self=this;new window.EyeDropper().open().then(function(result){self.chooseDraftColor(result.sRGBHex,'屏幕吸色');self.$message.success('已吸取屏幕颜色 '+result.sRGBHex.toUpperCase());}).catch(function(error){if(error&&error.name!=='AbortError')self.$message.error('屏幕吸色未完成，请重试');}); },
+        restoreFrequentColors: function(){ try{var raw=localStorage.getItem(this.frequentColorStorageKey);if(raw===null)return;var saved=JSON.parse(raw);if(!Array.isArray(saved))return;this.frequentColors=Array.from(new Set(saved.filter(function(hex){return typeof hex==='string'&&this.validColorHex(hex);}.bind(this)).map(function(hex){return hex.trim().toUpperCase();}))).slice(0,10);}catch(e){} },
+        persistFrequentColors: function(){ try{localStorage.setItem(this.frequentColorStorageKey,JSON.stringify(this.frequentColors));}catch(e){} },
+        addFrequentColor: function(){ if(!this.normalizeColorHex())return;var hex=this.colorDraft.hex;if(this.frequentColors.indexOf(hex)!==-1){this.$message.info(hex+' 已在常用色中');return;}if(this.frequentColors.length>=10){this.$message.warning('常用色最多保存 10 个');return;}this.frequentColors.push(hex);this.persistFrequentColors();this.$message.success('已将 '+hex+' 加入常用色'); },
+        removeFrequentColor: function(hex){ this.frequentColors=this.frequentColors.filter(function(item){return item!==hex;});if(this.colorDraft.hex===hex&&this.colorDraft.source==='常用色')this.colorDraft.source='色盘选择';this.persistFrequentColors();this.$message.success('已从常用色删除 '+hex); },
         persistColorState: function(){ try{localStorage.setItem(this.colorStorageKey,JSON.stringify({mainColor:this.planning.mainColor,additionalColors:this.planning.additionalColors}));}catch(e){} },
         restoreColorState: function(){ try{var saved=JSON.parse(localStorage.getItem(this.colorStorageKey)||'{}');if(saved.mainColor&&this.validColorHex(saved.mainColor.hex))this.planning.mainColor={hex:saved.mainColor.hex.toUpperCase(),pantone:(saved.mainColor.pantone||'').slice(0,32),source:saved.mainColor.source||'已保存主色'};if(Array.isArray(saved.additionalColors))this.planning.additionalColors=saved.additionalColors.filter(function(item){return item&&this.validColorHex(item.hex);}.bind(this)).slice(0,7).map(function(item){return {hex:item.hex.toUpperCase(),pantone:(item.pantone||'').slice(0,32),source:item.source||'选色'};});}catch(e){} },
         addDraftColor: function(){ if(!this.normalizeColorHex())return;var hex=this.colorDraft.hex;var existing=this.colorSelections.findIndex(function(item){return item.hex===hex;});if(existing!==-1){this.$set(this.colorSelections,existing,{hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已更新'+(existing===0?'主色 ':'参考色 ')+hex);return;}if(this.colorSelections.length>=8){this.$message.warning('最多加入 8 个颜色');return;}var isPrimary=this.colorSelections.length===0;this.colorSelections.push({hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已'+(isPrimary?'设为主色 ':'加入参考色 ')+hex); },
