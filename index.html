@@ -77,7 +77,6 @@
     .main-color-card__copy strong { color:#303133; font-size:15px; }
     .main-color-card__copy small, .color-result-strip small { color:#909399; font-size:12px; }
     .main-color-card__actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .main-color-card__notice { margin-top:10px; }
     .color-dialog { margin-top:5vh !important; }
     .color-dialog .el-dialog__body { max-height:calc(80vh - 112px); overflow-y:auto; padding-top:8px; }
     .color-picker-layout { display:flex; align-items:center; gap:26px; padding:12px 0 18px; }
@@ -508,15 +507,13 @@
                 </section>
 
                 <section class="reference-form-card main-color-card">
-                  <h2 class="reference-form-card__title"><span>产品配色（选填）</span><span class="reference-form-card__hint">用于产品主体面料</span></h2>
+                  <h2 class="reference-form-card__title"><span>产品配色</span><span class="reference-form-card__hint">为生成创意提供配色参考</span></h2>
                   <div v-if="planning.mainColor.hex" class="main-color-card__selection">
                     <span class="main-color-card__swatch" :style="{background:planning.mainColor.hex}"></span>
                     <span class="main-color-card__copy"><strong>{{ planning.mainColor.hex }}</strong><small>{{ planning.mainColor.pantone ? pantoneOriginText(planning.mainColor)+' '+planning.mainColor.pantone+' · 未核验｜' : '' }}{{ planning.mainColor.source || '色盘选择' }}</small></span>
                   </div>
                   <div v-if="planning.additionalColors.length" class="color-selection-list"><span v-for="item in planning.additionalColors" :key="item.hex" class="color-selection-chip"><span class="color-selection-chip__swatch" :style="{background:item.hex}"></span>参考色 {{ item.hex }}<small v-if="item.pantone"> · {{ item.pantone }}</small></span></div>
-                  <div v-if="!planning.mainColor.hex" class="field-description" style="margin:10px 0">还没有指定主色；生成时由方案决定配色。</div>
-                  <div class="main-color-card__actions"><el-button type="primary" plain icon="el-icon-brush" :disabled="isViewer" @click="openColorDialog('wheel')">选颜色</el-button><el-button icon="el-icon-view" :disabled="isViewer" @click="openColorDialog('eyedropper')">图片／屏幕吸色</el-button><el-button v-if="planning.mainColor.hex" type="text" :disabled="isViewer" @click="clearMainColor">清除主色</el-button></div>
-                  <div class="field-description main-color-card__notice">可加入多个颜色；首个为主色，其余为配色参考。支持拖动 HEX 色盘、查看第三方潘通编号参考、粘贴或上传多张图片吸色。</div>
+                  <div class="main-color-card__actions"><el-button type="primary" plain icon="el-icon-brush" :disabled="isViewer" @click="openColorDialog('wheel')">选颜色</el-button><el-button v-if="planning.mainColor.hex" type="text" :disabled="isViewer" @click="clearMainColor">清除主色</el-button></div>
                 </section>
 
                 <section class="reference-form-card">
