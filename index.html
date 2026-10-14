@@ -123,7 +123,8 @@
     .color-selection-chip button { border:0; background:none; color:#315cf5; cursor:pointer; padding:2px; }
     .color-selection-chip button[aria-label^="移除"] { color:#77818f; font-size:17px; line-height:1; }
     .color-quick { display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid #e1e5ee; border-radius:8px; background:#fff; cursor:pointer; }
-    .color-quick:hover { border-color:#315cf5; }
+    .color-quick:hover, .color-quick.is-selected { border-color:#315cf5; }
+    .color-quick.is-selected { background:#f2f6ff; box-shadow:0 0 0 1px #315cf5 inset; }
     .color-quick__swatch { width:22px; height:22px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
@@ -744,8 +745,8 @@
             </div>
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
-          <div class="field-description" style="margin:0 0 8px">浅彩参考色 · 根据你提供的图片提炼的屏幕近似色，不是高频用色或潘通色号</div>
-          <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" @click="chooseDraftColor(hex,'浅彩参考色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
+          <div class="field-description" style="margin:0 0 8px"><strong>快捷试色</strong> · 点一下即可预览颜色；喜欢的话，再在下方设为主色或加入参考色。这里的浅彩颜色仅作试色展示。</div>
+          <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" :class="{'is-selected':colorDraft.hex===hex}" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用颜色 '+hex" @click="chooseDraftColor(hex,'快捷试色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
           <div class="pantone-workspace">
