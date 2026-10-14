@@ -92,10 +92,8 @@
     .color-picker-preview { width:100%; height:70px; margin-bottom:12px; border:1px solid #dfe4ee; border-radius:9px; }
     .color-picker-controls label { display:block; margin:12px 0 5px; color:#606266; font-size:13px; }
     .color-picker-controls input[type=range] { width:100%; accent-color:#315cf5; }
-    .color-quick-list, .color-source-list { display:flex; gap:9px; flex-wrap:wrap; }
+    .color-quick-list { display:flex; gap:9px; flex-wrap:wrap; }
     .color-image-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
-    .color-image-compact { margin-top:12px; padding-top:8px; border-top:1px solid #e6eaf1; }
-    .color-image-compact__actions { display:flex; align-items:center; gap:8px; color:#858990; font-size:12px; }
     .color-selection-list { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
     .color-selection-chip { display:flex; align-items:center; gap:7px; padding:6px 8px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; color:#3d4655; font-size:12px; }
     .color-selection-chip__swatch { width:23px; height:23px; border:1px solid rgba(0,0,0,.12); border-radius:5px; flex:none; }
@@ -103,7 +101,7 @@
     .color-selection-chip button { border:0; background:none; color:#315cf5; cursor:pointer; padding:2px; }
     .color-selection-chip button[aria-label^="移除"] { color:#77818f; font-size:17px; line-height:1; }
     .color-quick { display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid #e1e5ee; border-radius:8px; background:#fff; cursor:pointer; }
-    .color-quick:hover, .color-source.is-active { border-color:#315cf5; }
+    .color-quick:hover { border-color:#315cf5; }
     .color-quick__swatch { width:22px; height:22px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
@@ -142,16 +140,10 @@
       .pantone-colors-pane { height:45vh; }
       .pantone-controls-pane { max-height:none; }
     }
-    .color-source { width:116px; padding:6px; border:1px solid #e1e5ee; border-radius:8px; background:#fff; color:#606266; cursor:pointer; text-align:left; }
-    .color-source-wrap { position:relative; display:inline-flex; }
-    .color-source-remove { position:absolute; top:2px; right:2px; width:22px; height:22px; border:0; border-radius:50%; background:rgba(255,255,255,.94); color:#687385; cursor:pointer; }
-    .color-source img { display:block; width:100%; height:78px; margin-bottom:4px; border-radius:5px; object-fit:cover; background:#f5f7fa; }
-    .color-sample-image { display:block; max-width:100%; max-height:340px; margin:14px auto 0; cursor:crosshair; object-fit:contain; }
     .color-result-strip { margin:0 0 16px; }
     .color-result-strip__swatch, .color-detail-row__swatch { width:32px; height:32px; }
     .color-card-meta { display:flex; align-items:center; gap:6px; margin:10px 0 0; color:#606266; font-size:12px; }
     .color-card-meta__swatch { width:16px; height:16px; border:1px solid rgba(0,0,0,.12); border-radius:4px; }
-    .color-card-action { margin:3px 0 0 !important; padding:0 !important; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
     .form-span-2 { grid-column: 1 / -1; }
     .upload-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -644,7 +636,6 @@
                         <h3 class="creative-reference-name">{{ item.name }}</h3><p class="creative-reference-desc">{{ item.desc }}</p>
                         <div class="creative-reference-tags"><el-tag v-for="tag in item.tags" :key="tag" size="small">{{ tag }}</el-tag></div>
                         <div v-if="item.mainColor && item.mainColor.hex" class="color-card-meta"><span class="color-card-meta__swatch" :style="{background:item.mainColor.hex}"></span>目标主色 {{ item.mainColor.hex }}</div>
-                        <el-button v-if="!item.failed" type="text" class="color-card-action" :disabled="isViewer" @click.stop="startColorFromCreative(item)">从此图吸色，用于下一轮</el-button>
                         <el-button v-if="item.failed" class="creative-refine" type="primary" :loading="item.retrying" :disabled="isViewer || item.removed || item.retrying" @click.stop="retryCreative(item)">{{ item.retrying ? '生成中' : '重新生成' }}</el-button>
                         <el-button v-else class="creative-refine" type="primary" :disabled="isViewer || item.removed" @click.stop="openRefine(item)">精 修</el-button>
                       </div>
@@ -727,14 +718,10 @@
               </div>
               <button type="button" class="color-wheel-eyedropper" aria-label="用吸色笔取屏幕颜色" title="吸取屏幕颜色" @click="pickScreenColor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1-4 9-9 3 3-9 9-4 1Z"></path><path d="m12 6 6 6"></path><path d="m15 5 2-2a3 3 0 0 1 4 4l-2 2"></path></svg><span>吸色笔</span></button>
             </div>
-            <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone=''" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
+            <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><label>颜色值</label><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
           <div class="field-description" style="margin:0 0 8px">浅彩参考色 · 根据你提供的图片提炼的屏幕近似色，不是高频用色或潘通色号</div>
           <div class="color-quick-list"><button v-for="hex in quickColors" :key="hex" type="button" class="color-quick" @click="chooseDraftColor(hex,'浅彩参考色')"><span class="color-quick__swatch" :style="{background:hex}"></span>{{ hex }}</button></div>
-          <section ref="colorImageSection" class="color-image-compact">
-            <div class="color-image-compact__actions"><el-button type="text" icon="el-icon-upload2" @click="$refs.colorUploadInput.click()">从图片取色</el-button><span>也可直接粘贴图片</span><input ref="colorUploadInput" type="file" accept="image/*" multiple style="display:none" @change="handleColorUpload"></div>
-            <div v-if="availableColorImages.length"><div class="field-description">点击图片取色。</div><div class="color-source-list" style="margin-top:10px"><span v-for="item in availableColorImages" :key="item.key" class="color-source-wrap"><button type="button" class="color-source" :class="{'is-active':colorImageKey===item.key}" @click="colorImageKey=item.key"><img :src="item.url" :alt="item.label">{{ item.label }}</button><button v-if="item.key.indexOf('uploaded-color-image-')===0" type="button" class="color-source-remove" :aria-label="'移除'+item.label" @click="removeColorImage(item.key)">×</button></span></div><img v-if="activeColorImage" ref="colorSampleImage" class="color-sample-image" :src="activeColorImage.url" :alt="activeColorImage.label+'，点击吸色'" @click="sampleImageColor"></div>
-          </section>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
           <div class="pantone-workspace">
@@ -755,7 +742,7 @@
         </el-tab-pane>
 
       </el-tabs>
-      <div class="color-picker-layout" style="padding-bottom:0"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><div class="color-picker-controls"><strong>本次选色 {{ colorDraft.hex }}</strong><label>{{ colorDraft.source==='第三方编号参考'?'第三方 FHI 参考编号（未核验）':'潘通色号（已有时填写，可留空）' }}</label><el-input v-model="colorDraft.pantone" maxlength="32" placeholder="例如 16-XXXX TCX" @input="markPantoneManual"></el-input><div class="field-description">{{ colorDraft.source==='第三方编号参考'?'当前编号来自第三方历史数据，HEX 是屏幕参考值；TCX／TPG 类型和正式色彩需再核对。':'手动填写时，仅记录你输入的编号；系统不会自动把 HEX 换算为潘通色号，也不会核验两者一致。' }} 可前往 <a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方查询</a>。</div></div></div>
+      <div class="color-picker-layout" style="padding-bottom:0"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><div class="color-picker-controls"><strong>本次选色 {{ colorDraft.hex }}</strong><div v-if="colorDraft.pantone" class="field-description">{{ pantoneOriginText(colorDraft) }} {{ colorDraft.pantone }} · 屏幕颜色仅供参考</div></div></div>
       <div class="color-image-actions"><el-button icon="el-icon-plus" @click="addDraftColor">加入这组颜色</el-button><span class="field-description">最多 8 色；首个为主色，其余是可选参考，不要求全部用于生成图。</span></div>
       <div v-if="colorSelections.length" class="color-selection-list"><span v-for="(item,index) in colorSelections" :key="item.hex" class="color-selection-chip"><button type="button" class="color-selection-chip__select" :aria-label="'查看'+item.hex" @click="selectGroupColor(item)"><span class="color-selection-chip__swatch" :style="{background:item.hex}"></span>{{ index===0?'主色':'参考色' }} {{ item.hex }}<small v-if="item.pantone"> · {{ item.pantone }}</small></button><button v-if="index>0" type="button" :aria-label="'将'+item.hex+'设为主色'" @click="setPrimaryColor(index)">设为主色</button><button type="button" :aria-label="'移除'+item.hex" @click="removeDraftColor(index)">×</button></span></div>
       <span slot="footer"><el-button @click="colorDialogVisible=false">取消</el-button><el-button type="primary" @click="applyMainColor">使用这组颜色</el-button></span>
@@ -808,7 +795,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           planningMessage: '请填写企划需求；关键操作后自动保存。', planningMessageType: 'info',
           promptLoading: false, imageLoading: false, showRetryButton: false, promptDialogVisible: false, previewDialogVisible: false,
           acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, historyDrawerVisible: false,
-          colorDialogVisible: false, colorTab: 'wheel', colorImageKey: '', colorImageUploads: [], colorImageSerial: 0, colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', quickColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:100, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
+          colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', quickColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:100, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
           imageKinds: [{key:'sketch',label:'线稿'},{key:'competitor',label:'竞品'},{key:'creative',label:'创意'}],
@@ -827,7 +814,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           fieldRows:[
             {name:'品类选择',type:'单选',scope:'全部品类',required:true,status:'启用'},
             {name:'企划需求',type:'多行文本',scope:'全部品类',required:true,status:'启用'},
-            {name:'产品主色与参考色',type:'多色选择 / 多图上传与粘贴 / 屏幕吸色',scope:'全部品类',required:false,status:'启用'},
+            {name:'产品主色与参考色',type:'多色选择 / 色盘 / 潘通编号参考 / 屏幕吸色',scope:'全部品类',required:false,status:'启用'},
             {name:'创意方向',type:'多选标签',scope:'按品类配置',required:false,status:'启用'},
             {name:'工艺 / 成本 / 面料约束',type:'多选标签',scope:'按品类配置',required:false,status:'启用'},
             {name:'禁止项',type:'多选标签',scope:'按品类配置',required:false,status:'启用'}
@@ -842,8 +829,6 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
       },
       computed: {
         isViewer: function(){ return this.roleMode==='viewer'; },
-        availableColorImages: function(){ var list=this.colorImageUploads.slice(),self=this;this.imageKinds.forEach(function(kind){var url=self.planning.imagePreviews[kind.key];if(url)list.push({key:'reference-'+kind.key,label:kind.label+'参考图',url:url});});this.creatives.forEach(function(item){if(item.image&&!item.failed)list.push({key:'creative-'+item.id,label:item.name,url:item.image});});return list; },
-        activeColorImage: function(){ return this.availableColorImages.find(function(item){return item.key===this.colorImageKey;}.bind(this))||this.availableColorImages[0]||null; },
         filteredPantoneColors: function(){ var query=(this.pantoneQuery||'').trim().toUpperCase().replace(/^#/,''),filters=this.pantoneFilters;return this.pantoneColors.filter(function(item){if(query&&item.code.indexOf(query)===-1&&item.hex.slice(1).indexOf(query)===-1)return false;return ['h','s','l'].every(function(key){var range=filters[key],value=item.hsl[key];return !range.active||value>=range.from&&value<=range.to;});}); },
         pagedPantoneColors: function(){ var start=(this.pantonePage-1)*this.pantonePageSize;return this.filteredPantoneColors.slice(start,start+this.pantonePageSize); },
         colorWheelCursor: function(){ var radians=this.wheelHue*Math.PI/180;var radius=this.wheelSaturation/100*108;return {left:(112+Math.sin(radians)*radius)+'px',top:(112-Math.cos(radians)*radius)+'px'}; },
@@ -872,8 +857,6 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         isCurrentPromptOutdated: function(isOutdated,wasOutdated){ if(this.promptOutdatedToastReady&&isOutdated&&!wasOutdated)this.$message.warning('企划输入已修改，当前方案待更新'); }
       },
       created: function(){ var self=this;this.restoreColorState();this.restorePromptResults();this.$nextTick(function(){self.promptOutdatedToastReady=true;}); },
-      mounted: function(){ window.addEventListener('paste',this.handleColorPaste); },
-      beforeDestroy: function(){ window.removeEventListener('paste',this.handleColorPaste); },
       methods: {
         validColorHex: function(value){ return /^#[0-9a-fA-F]{6}$/.test((value||'').trim()); },
         hsvToHex: function(h,s,v){ s/=100;v/=100;var c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c,r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}return '#'+[r,g,b].map(function(n){return Math.round((n+m)*255).toString(16).padStart(2,'0');}).join('').toUpperCase(); },
@@ -900,17 +883,9 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         resetPantoneFilter: function(key){ var def=this.pantoneFilterDef(key);this.$set(this.pantoneFilters,key,{active:false,from:0,to:def.max}); },
         resetPantoneFilters: function(){ this.pantoneQuery='';this.pantoneFilterDefs.forEach(function(def){this.resetPantoneFilter(def.key);}.bind(this));this.pantonePage=1; },
         pantoneOriginText: function(color){ return color&&color.source==='第三方编号参考'?'第三方 FHI 参考编号':'用户自填潘通色号'; },
-        markPantoneManual: function(){ if(this.colorDraft.source==='第三方编号参考')this.colorDraft.source='手填色号'; },
         normalizeColorHex: function(){ var hex=(this.colorDraft.hex||'').trim();if(/^[0-9a-fA-F]{6}$/.test(hex))hex='#'+hex;if(!this.validColorHex(hex)){this.$message.error('请输入 6 位十六进制颜色值，例如 #A8C9D8');return false;}this.chooseDraftColor(hex,this.colorDraft.source);return true; },
-        openColorDialog: function(tab){ if(this.isViewer)return;var current=this.planning.mainColor;this.colorSelections=(current.hex?[Object.assign({},current)]:[]).concat((this.planning.additionalColors||[]).map(function(item){return Object.assign({},item);}));this.colorDraft={hex:current.hex||'#DCECF8',pantone:current.pantone||'',source:current.source||'色盘选择'};this.syncWheelFromHex(this.colorDraft.hex);this.colorTab=tab==='pantone'?'pantone':'wheel';this.colorImageKey=this.availableColorImages.length?this.availableColorImages[0].key:'';this.colorDialogVisible=true; },
-        focusColorImageSection: function(){ this.$nextTick(function(){ if(this.$refs.colorImageSection)this.$refs.colorImageSection.scrollIntoView({block:'nearest'}); }); },
-        startColorFromCreative: function(item){ if(this.isViewer||!item||!item.image)return;this.currentPage='planning';this.openColorDialog('wheel');this.colorImageKey='creative-'+item.id;this.focusColorImageSection(); },
-        loadColorImage: function(file,label){ if(!file||!file.type||file.type.indexOf('image/')!==0){this.$message.error('请选择图片文件');return;}if(file.size>10*1024*1024){this.$message.error('每张图片不能超过 10 MB');return;}if(this.colorImageUploads.length>=10){this.$message.warning('最多上传 10 张取色图片');return;}var self=this,key='uploaded-color-image-'+(++this.colorImageSerial),reader=new FileReader();reader.onload=function(){self.colorImageUploads.push({key:key,url:reader.result,label:label||file.name||'粘贴图片'});self.colorImageKey=key;self.colorTab='wheel';self.focusColorImageSection();self.$message.success('图片已就绪，可继续添加图片或点击图片吸色');};reader.onerror=function(){self.$message.error('图片读取失败，请重新选择');};reader.readAsDataURL(file); },
-        handleColorUpload: function(event){ var files=Array.prototype.slice.call(event.target.files||[]),slots=Math.max(0,10-this.colorImageUploads.length),self=this;if(files.length>slots)this.$message.warning('最多保留 10 张取色图片');files.slice(0,slots).forEach(function(file){self.loadColorImage(file,'上传图片 '+(self.colorImageSerial+1));});event.target.value=''; },
-        removeColorImage: function(key){ this.colorImageUploads=this.colorImageUploads.filter(function(item){return item.key!==key;});if(this.colorImageKey===key)this.colorImageKey=this.availableColorImages.length?this.availableColorImages[0].key:''; },
-        handleColorPaste: function(event){ if(!this.colorDialogVisible||this.isViewer)return;var items=event.clipboardData&&event.clipboardData.items;if(!items)return;for(var i=0;i<items.length;i++){if(items[i].type.indexOf('image/')===0){var file=items[i].getAsFile();if(file){event.preventDefault();this.loadColorImage(file,'粘贴图片');}return;}} },
-        pickScreenColor: function(){ if(!window.EyeDropper){this.$message.warning('当前浏览器不支持屏幕吸色笔，请用桌面版 Chrome／Edge 打开公开网址，或上传图片吸色');return;}var self=this;new window.EyeDropper().open().then(function(result){self.chooseDraftColor(result.sRGBHex,'屏幕吸色');self.$message.success('已吸取屏幕颜色 '+result.sRGBHex.toUpperCase());}).catch(function(error){if(error&&error.name!=='AbortError')self.$message.error('屏幕吸色未完成，请重试');}); },
-        sampleImageColor: function(event){ var image=event.currentTarget;if(!image.naturalWidth||!image.naturalHeight)return;var rect=image.getBoundingClientRect(),x=Math.max(0,Math.min(image.naturalWidth-1,Math.floor((event.clientX-rect.left)/rect.width*image.naturalWidth))),y=Math.max(0,Math.min(image.naturalHeight-1,Math.floor((event.clientY-rect.top)/rect.height*image.naturalHeight)));try{var canvas=document.createElement('canvas');canvas.width=1;canvas.height=1;var context=canvas.getContext('2d');context.drawImage(image,x,y,1,1,0,0,1,1);var pixel=context.getImageData(0,0,1,1).data;if(pixel[3]<20){this.$message.warning('这里是透明区域，请点击有颜色的位置');return;}var hex='#'+[pixel[0],pixel[1],pixel[2]].map(function(n){return n.toString(16).padStart(2,'0');}).join('').toUpperCase();this.chooseDraftColor(hex,'图片吸色 · '+(this.activeColorImage?this.activeColorImage.label:'图片'));this.$message.success('已吸取颜色 '+hex);}catch(e){this.$message.error('无法读取这张图片的颜色，请换一张图片');} },
+        openColorDialog: function(tab){ if(this.isViewer)return;var current=this.planning.mainColor;this.colorSelections=(current.hex?[Object.assign({},current)]:[]).concat((this.planning.additionalColors||[]).map(function(item){return Object.assign({},item);}));this.colorDraft={hex:current.hex||'#DCECF8',pantone:current.pantone||'',source:current.source||'色盘选择'};this.syncWheelFromHex(this.colorDraft.hex);this.colorTab=tab==='pantone'?'pantone':'wheel';this.colorDialogVisible=true; },
+        pickScreenColor: function(){ if(!window.EyeDropper){this.$message.warning('当前浏览器不支持屏幕吸色笔，请用桌面版 Chrome／Edge 打开公开网址，或直接输入 HEX 颜色值');return;}var self=this;new window.EyeDropper().open().then(function(result){self.chooseDraftColor(result.sRGBHex,'屏幕吸色');self.$message.success('已吸取屏幕颜色 '+result.sRGBHex.toUpperCase());}).catch(function(error){if(error&&error.name!=='AbortError')self.$message.error('屏幕吸色未完成，请重试');}); },
         persistColorState: function(){ try{localStorage.setItem(this.colorStorageKey,JSON.stringify({mainColor:this.planning.mainColor,additionalColors:this.planning.additionalColors}));}catch(e){} },
         restoreColorState: function(){ try{var saved=JSON.parse(localStorage.getItem(this.colorStorageKey)||'{}');if(saved.mainColor&&this.validColorHex(saved.mainColor.hex))this.planning.mainColor={hex:saved.mainColor.hex.toUpperCase(),pantone:(saved.mainColor.pantone||'').slice(0,32),source:saved.mainColor.source||'已保存主色'};if(Array.isArray(saved.additionalColors))this.planning.additionalColors=saved.additionalColors.filter(function(item){return item&&this.validColorHex(item.hex);}.bind(this)).slice(0,7).map(function(item){return {hex:item.hex.toUpperCase(),pantone:(item.pantone||'').slice(0,32),source:item.source||'选色'};});}catch(e){} },
         addDraftColor: function(){ if(!this.normalizeColorHex())return;var hex=this.colorDraft.hex;var existing=this.colorSelections.findIndex(function(item){return item.hex===hex;});if(existing!==-1){this.$set(this.colorSelections,existing,{hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已更新 '+hex+' 的编号信息');return;}if(this.colorSelections.length>=8){this.$message.warning('最多加入 8 个颜色');return;}this.colorSelections.push({hex:hex,pantone:(this.colorDraft.pantone||'').trim().slice(0,32),source:this.colorDraft.source});this.$message.success('已加入 '+hex); },
@@ -932,10 +907,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           this.spliceEditDraft={category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]};
           this.creatives=[];
           this.generationMainColor={hex:'',pantone:'',source:''};
-          this.colorImageUploads=[];
-          this.colorImageSerial=0;
           this.colorSelections=[];
-          this.colorImageKey='';
           this.failedImageCount=0;
           this.showRetryButton=false;
           this.planningStep=0;
