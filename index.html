@@ -115,9 +115,12 @@
     .frequent-add-dialog .color-picker-layout { padding-bottom:4px; }
     .frequent-add-dialog .color-picker-preview { display:flex; align-items:center; justify-content:center; color:#8792a2; font-size:13px; }
     .frequent-add-dialog .color-picker-preview.is-empty { background:repeating-conic-gradient(#f1f3f7 0 25%,#fff 0 50%) 0 0/16px 16px; }
-    .color-role-flow { margin:14px 0 0; padding:14px; border:1px solid #dfe7f5; border-radius:11px; background:#f8fbff; }
-    .color-role-flow__title { display:flex; align-items:baseline; gap:8px; margin-bottom:9px; color:#263447; font-size:14px; }
-    .color-role-flow__title span { color:#697386; font-size:12px; font-weight:400; }
+    .color-step-card { margin:0 0 14px; padding:14px; border:1px solid #e4e9f2; border-radius:16px; background:#fff; }
+    .color-step-card__heading { display:flex; align-items:center; gap:9px; margin-bottom:12px; min-height:26px; }
+    .color-step-card__number { display:inline-flex; flex:none; width:25px; height:25px; align-items:center; justify-content:center; border-radius:50%; background:#f1f3f6; color:#687489; font-size:10px; font-weight:600; }
+    .color-step-card__heading strong { color:#263447; font-size:15px; }
+    .color-step-card__heading small { min-width:0; color:#8993a1; font-size:11px; font-weight:400; }
+    .color-role-flow { margin-bottom:0; }
     .color-role-flow__current { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .color-role-flow__current .main-color-card__swatch { width:36px; height:36px; }
     .color-role-flow__current-copy { display:flex; flex:1; min-width:150px; flex-direction:column; gap:2px; }
@@ -754,7 +757,8 @@
     </el-dialog>
 
     <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
-      <div class="field-description" style="margin:0 0 8px">第 1 步：在色盘或潘通编号参考中选颜色。第 2 步：在下方设为主色，再按需加入参考色。</div>
+      <section class="color-step-card" aria-label="第一步：选择颜色">
+      <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>从色盘或潘通编号参考中挑选</small></div>
       <el-tabs v-model="colorTab">
         <el-tab-pane label="色盘" name="wheel">
           <div class="color-picker-layout color-picker-layout--wheel">
@@ -786,8 +790,9 @@
         </el-tab-pane>
 
       </el-tabs>
-      <section class="color-role-flow" aria-label="组合产品配色">
-        <div class="color-role-flow__title"><strong>第 2 步 · 组合产品配色</strong><span>先选主色，参考色可不选；最多 8 色</span></div>
+      </section>
+      <section class="color-step-card color-role-flow" aria-label="第二步：组合产品配色">
+        <div class="color-step-card__heading"><span class="color-step-card__number">02</span><strong>组合产品配色</strong><small>先选主色，按需加入参考色；最多 8 色</small></div>
         <div class="color-role-flow__current"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><span class="color-role-flow__current-copy"><strong>当前选中 {{ colorDraft.hex }}</strong><small v-if="colorDraft.pantone">{{ pantoneOriginText(colorDraft) }} {{ colorDraft.pantone }}</small><small v-else>可作为产品主色或参考色</small></span><el-button type="primary" icon="el-icon-plus" @click="addDraftColor">{{ colorDraftActionLabel }}</el-button></div>
         <div class="color-role-flow__slots">
           <div class="color-role-slot color-role-slot--primary"><div class="color-role-slot__head">产品主色 <small>确定产品的主要颜色</small></div><div v-if="colorSelections.length" class="color-role-slot__item"><span class="color-selection-chip__swatch" :style="{background:colorSelections[0].hex}"></span><span class="color-role-slot__item-copy"><strong>{{ colorSelections[0].hex }}</strong><small v-if="colorSelections[0].pantone">{{ colorSelections[0].pantone }}</small></span><span class="color-role-slot__actions"><button type="button" @click="selectGroupColor(colorSelections[0])">查看</button><button type="button" :aria-label="'移除主色'+colorSelections[0].hex" @click="removeDraftColor(0)">×</button></span></div><div v-else class="color-role-slot__empty">尚未选择主色，请点击上方“设为主色”</div></div>
