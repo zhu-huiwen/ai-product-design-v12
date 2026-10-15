@@ -757,10 +757,10 @@
     </el-dialog>
 
     <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
-      <section class="color-step-card" aria-label="第一步：选择颜色">
-      <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>从色盘或潘通编号参考中挑选</small></div>
       <el-tabs v-model="colorTab">
         <el-tab-pane label="色盘" name="wheel">
+          <section class="color-step-card" aria-label="第一步：从色盘选择颜色">
+          <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>在色盘中挑选颜色</small></div>
           <div class="color-picker-layout color-picker-layout--wheel">
             <div class="color-wheel-group">
               <div class="color-wheel" role="button" tabindex="0" aria-label="在色盘上点击或拖动选择颜色" @pointerdown="startWheelDrag" @pointermove="moveWheelDrag" @pointerup="endWheelDrag" @pointercancel="cancelWheelDrag" @lostpointercapture="cancelWheelDrag" @keydown.enter="pickWheelCenter" @keydown.space.prevent="pickWheelCenter">
@@ -770,8 +770,11 @@
             <div class="color-picker-controls"><div class="color-picker-preview" :style="{background:colorDraft.hex}"></div><label for="main-color-brightness">明暗</label><input id="main-color-brightness" type="range" min="5" max="100" v-model.number="wheelBrightness" @input="updateWheelColor"><div class="color-picker-value-row"><label>颜色值</label><button type="button" class="color-wheel-eyedropper" aria-label="用吸色笔取屏幕颜色" title="吸取屏幕颜色" @click="pickScreenColor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1-4 9-9 3 3-9 9-4 1Z"></path><path d="m12 6 6 6"></path><path d="m15 5 2-2a3 3 0 0 1 4 4l-2 2"></path></svg><span>吸色笔</span></button></div><el-input v-model="colorDraft.hex" maxlength="7" placeholder="#A8C9D8" @input="colorDraft.pantone='';colorDraft.source='色盘选择'" @blur="normalizeColorHex"></el-input><div class="field-description">在色盘上按住并滑动取色；也可以直接输入 #RRGGBB。</div></div>
           </div>
           <div class="frequent-color-section"><span class="frequent-color-title"><strong>常用颜色</strong><small>{{ frequentColors.length }}/10</small></span><div class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" :title="hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span></button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span><button v-if="frequentColors.length<10" type="button" class="frequent-color-empty" aria-label="选择颜色加入常用色" title="选择颜色加入常用色" @click="openFrequentColorAdd"><span class="frequent-color-empty__swatch">＋</span></button></div></div>
+          </section>
         </el-tab-pane>
         <el-tab-pane label="潘通编号参考" name="pantone">
+          <section class="color-step-card" aria-label="第一步：从潘通编号参考中选择颜色">
+          <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>按潘通编号筛选参考色</small></div>
           <div class="pantone-workspace">
             <section class="pantone-colors-pane" aria-label="潘通参考色卡">
               <div class="pantone-colors-head"><strong>颜色</strong><span class="pantone-count">{{ filteredPantoneColors.length }} / {{ pantoneColors.length }} 色</span></div>
@@ -787,10 +790,10 @@
               <div class="pantone-filters"><div class="pantone-filter-hint">在渐变条上按住并拖动选择范围；色相、饱和度、明度会取交集。也可在下方输入精确范围。</div><div v-for="filter in pantoneFilterDefs" :key="filter.key" class="pantone-filter"><div class="pantone-filter-head"><strong>{{ filter.label }}</strong><span>{{ pantoneFilterLabel(filter) }} <button v-if="pantoneFilters[filter.key].active" type="button" :aria-label="'清除'+filter.label+'筛选'" @click="resetPantoneFilter(filter.key)">清除</button></span></div><div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div><div class="pantone-filter-bounds"><span>从</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].from" :aria-label="filter.label+'最小值'" @change="setPantoneFilterBound(filter.key,'from',$event)"><span>到</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].to" :aria-label="filter.label+'最大值'" @change="setPantoneFilterBound(filter.key,'to',$event)"><span>{{ filter.unit }}</span></div></div><div class="pantone-card-size"><span>色卡大小</span><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><span>{{ pantoneCardWidth }} px</span><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div></div>
             </aside>
           </div>
+          </section>
         </el-tab-pane>
 
       </el-tabs>
-      </section>
       <section class="color-step-card color-role-flow" aria-label="第二步：组合产品配色">
         <div class="color-step-card__heading"><span class="color-step-card__number">02</span><strong>组合产品配色</strong><small>先选主色，按需加入参考色；最多 8 色</small></div>
         <div class="color-role-flow__current"><span class="main-color-card__swatch" :style="{background:colorDraft.hex}"></span><span class="color-role-flow__current-copy"><strong>当前选中 {{ colorDraft.hex }}</strong><small v-if="colorDraft.pantone">{{ pantoneOriginText(colorDraft) }} {{ colorDraft.pantone }}</small><small v-else>可作为产品主色或参考色</small></span><el-button type="primary" icon="el-icon-plus" @click="addDraftColor">{{ colorDraftActionLabel }}</el-button></div>
