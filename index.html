@@ -180,8 +180,13 @@
     .pantone-filter-bounds { display:flex; flex-direction:column; align-items:center; gap:2px; margin:5px 0; color:#687385; font-size:10px; }
     .pantone-filter-bounds input { width:50px; height:23px; padding:2px 4px; border:1px solid #d9e0ea; border-radius:5px; background:#fff; color:#3b4657; text-align:center; font-size:11px; }
     .pantone-filter-hint { grid-column:1/-1; color:#687385; font-size:12px; line-height:1.5; }
-    .pantone-card-size { display:flex; grid-column:1/-1; align-items:center; gap:9px; margin:10px 0 0; color:#687385; font-size:12px; }
-    .pantone-card-size input { flex:1; accent-color:#315cf5; }
+    .pantone-card-size { display:flex; grid-column:1/-1; min-width:0; flex-direction:column; gap:9px; margin:10px 0 0; color:#687385; font-size:12px; }
+    .pantone-card-size__head,.pantone-card-size__scale { display:flex; align-items:center; justify-content:space-between; gap:8px; white-space:nowrap; }
+    .pantone-card-size__head strong { color:#263447; font-size:13px; }
+    .pantone-card-size__head .el-button { padding:0; font-size:11px; }
+    .pantone-card-size input { display:block; width:100%; margin:0; accent-color:#315cf5; }
+    .pantone-card-size__scale { color:#8b95a3; font-size:11px; }
+    .pantone-card-size__scale strong { color:#263447; font-weight:600; }
     .pantone-swatch { display:block; padding:5px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; text-align:left; cursor:pointer; }
     .pantone-swatch:hover,.pantone-swatch.is-selected { border-color:#315cf5; box-shadow:0 0 0 1px #315cf5; }
     .pantone-swatch__color { display:block; height:44px; border:1px solid rgba(0,0,0,.07); border-radius:5px; }
@@ -802,7 +807,7 @@
                   <div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'上下拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div>
                   <label class="pantone-filter-bounds"><span>{{ filter.key==='s'?'下限':'上限' }} {{ filter.unit }}</span><input type="number" :min="0" :max="filter.max" :value="filter.key==='s'?pantoneFilters[filter.key].from:pantoneFilters[filter.key].to" :aria-label="filter.label+(filter.key==='s'?'最小值':'最大值')" @change="setPantoneFilterBound(filter.key,filter.key==='s'?'from':'to',$event)"></label>
                 </div>
-                <div class="pantone-card-size"><span>色卡大小</span><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><span>{{ pantoneCardWidth }} px</span><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div>
+                <div class="pantone-card-size"><div class="pantone-card-size__head"><strong>色卡大小</strong><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><div class="pantone-card-size__scale"><span>90 px</span><strong>当前 {{ pantoneCardWidth }} px</strong><span>160 px</span></div></div>
               </div>
               <div class="field-description">第三方 <a href="https://github.com/Margaret2/pantone-colors" target="_blank" rel="noopener noreferrer">Margaret2/pantone-colors</a> 的 2,310 色，加上 <a href="https://github.com/BeefySerpent/Color-Book-AIR" target="_blank" rel="noopener noreferrer">Color-Book-AIR</a> 的 491 个新增 TCX 编号，共 2,801 色。相同编号保留原有 HEX；屏幕颜色仅供参考，正式色号请用<a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方资料</a>核对。</div>
             </aside>
