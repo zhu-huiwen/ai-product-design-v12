@@ -172,7 +172,7 @@
     .pantone-filter-head strong { color:#263447; font-size:13px; }
     .pantone-filter-head span { line-height:1.2; }
     .pantone-filter-head button { padding:0 0 0 3px; border:0; background:none; color:#315cf5; cursor:pointer; font-size:10px; }
-    .pantone-filter-track { position:relative; width:42px; height:220px; border:1px solid rgba(0,0,0,.13); border-radius:6px; cursor:crosshair; touch-action:none; user-select:none; overflow:hidden; box-shadow:0 3px 10px rgba(25,39,63,.13); }
+    .pantone-filter-track { position:relative; width:42px; height:clamp(160px,24vh,220px); border:1px solid rgba(0,0,0,.13); border-radius:6px; cursor:crosshair; touch-action:none; user-select:none; overflow:hidden; box-shadow:0 3px 10px rgba(25,39,63,.13); }
     .pantone-filter-track--h { background:linear-gradient(to bottom,#f33,#ff0,#0f0,#0ff,#33f,#f0f,#f33); }
     .pantone-filter-track--s { background:linear-gradient(to bottom,#f33,#b37474,#858585); }
     .pantone-filter-track--l { background:linear-gradient(to bottom,#080808,#777,#fff); }
@@ -793,7 +793,7 @@
             </section>
             <aside class="pantone-controls-pane" aria-label="颜色筛选">
               <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX，例如 11-0103" aria-label="搜索潘通参考编号或颜色值"></el-input></div>
-              <div class="field-description">第三方 <a href="https://github.com/Margaret2/pantone-colors" target="_blank" rel="noopener noreferrer">Margaret2/pantone-colors</a> 的 2,310 色，加上 <a href="https://github.com/BeefySerpent/Color-Book-AIR" target="_blank" rel="noopener noreferrer">Color-Book-AIR</a> 的 491 个新增 TCX 编号，共 2,801 色。相同编号保留原有 HEX；屏幕颜色仅供参考，正式色号请用<a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方资料</a>核对。</div>
+
               <div class="pantone-filters">
                 <div class="pantone-filter-hint">在竖向渐变条上按住并拖动选择范围；色相、饱和度、明度会取交集。也可输入上下端的数值。</div>
                 <div v-for="filter in pantoneFilterDefs" :key="filter.key" class="pantone-filter">
@@ -804,6 +804,7 @@
                 </div>
                 <div class="pantone-card-size"><span>色卡大小</span><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><span>{{ pantoneCardWidth }} px</span><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div>
               </div>
+              <div class="field-description">第三方 <a href="https://github.com/Margaret2/pantone-colors" target="_blank" rel="noopener noreferrer">Margaret2/pantone-colors</a> 的 2,310 色，加上 <a href="https://github.com/BeefySerpent/Color-Book-AIR" target="_blank" rel="noopener noreferrer">Color-Book-AIR</a> 的 491 个新增 TCX 编号，共 2,801 色。相同编号保留原有 HEX；屏幕颜色仅供参考，正式色号请用<a href="https://www.pantone.com/color-finder" target="_blank" rel="noopener noreferrer">潘通官方资料</a>核对。</div>
             </aside>
           </div>
           </section>
