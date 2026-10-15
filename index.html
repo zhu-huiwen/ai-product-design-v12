@@ -160,6 +160,11 @@
     .color-dialog--pantone { max-width:1180px; margin-top:3vh !important; }
     .color-dialog--pantone .el-dialog__body { max-height:calc(88vh - 112px); }
     .pantone-workspace { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
+    .pantone-selection-bar { display:flex; align-items:center; gap:10px; min-height:48px; margin:0 0 10px; padding:8px 10px; border:1px solid #dfe7f2; border-radius:10px; background:#f8faff; }
+    .pantone-selection-bar__swatch { width:30px; height:30px; flex:none; border:1px solid rgba(0,0,0,.1); border-radius:7px; background:#fff; }
+    .pantone-selection-bar__copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:2px; }
+    .pantone-selection-bar__copy strong { color:#263447; font-size:12px; }
+    .pantone-selection-bar__copy small { color:#7c8798; font-size:11px; }
     .pantone-colors-pane { display:flex; flex-direction:column; min-width:0; height:min(58vh,540px); border:1px solid #e1e6ee; border-radius:9px; background:#fff; overflow:hidden; }
     .pantone-colors-head { display:flex; justify-content:space-between; align-items:center; padding:11px 13px; border-bottom:1px solid #e1e6ee; }
     .pantone-colors-head strong { color:#263447; font-size:14px; }
@@ -189,9 +194,9 @@
     .pantone-card-size__scale strong { color:#263447; font-weight:600; }
     .pantone-swatch { display:block; padding:5px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; text-align:left; cursor:pointer; }
     .pantone-swatch:hover,.pantone-swatch.is-selected { border-color:#315cf5; box-shadow:0 0 0 1px #315cf5; }
-    .pantone-swatch__color { display:block; height:44px; border:1px solid rgba(0,0,0,.07); border-radius:5px; }
-    .pantone-swatch__code { display:block; margin-top:5px; font-weight:600; font-size:12px; color:#30394a; }
-    .pantone-swatch__hex { display:block; margin-top:2px; color:#697386; font-size:11px; }
+    .pantone-swatch__color { display:block; height:56px; border:1px solid rgba(0,0,0,.07); border-radius:5px; }
+    .pantone-swatch__code { display:block; margin-top:4px; font-weight:600; font-size:11px; color:#30394a; }
+    .pantone-swatch__hex { display:none; }
     .pantone-page { display:flex; justify-content:center; padding:9px 4px; border-top:1px solid #e1e6ee; }
     @media (max-width:800px) {
       .pantone-workspace { grid-template-columns:1fr; }
@@ -787,11 +792,12 @@
         <el-tab-pane label="潘通编号参考" name="pantone">
           <section class="color-step-card" aria-label="第一步：从潘通编号参考中选择颜色">
           <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>按潘通编号筛选参考色</small></div>
+          <div class="pantone-selection-bar" aria-live="polite"><span class="pantone-selection-bar__swatch" :style="{background:colorDraft.source==='第三方编号参考'?colorDraft.hex:'#fff'}"></span><span class="pantone-selection-bar__copy"><strong v-if="colorDraft.source==='第三方编号参考'">已选 {{ colorDraft.pantone }}</strong><strong v-else>点击下方色卡选色</strong><small v-if="colorDraft.source==='第三方编号参考'">{{ colorDraft.hex }} · 配色中已有 {{ colorSelections.length }}/8 色</small><small v-else>选中后可直接设为主色或加入参考色</small></span><el-button class="color-role-flow__add" icon="el-icon-plus" :disabled="colorDraft.source!=='第三方编号参考'" @click="addDraftColor">{{ colorDraftActionLabel }}</el-button></div>
           <div class="pantone-workspace">
             <section class="pantone-colors-pane" aria-label="潘通参考色卡">
               <div class="pantone-colors-head"><strong>颜色</strong><span class="pantone-count">{{ filteredPantoneColors.length }} / {{ pantoneColors.length }} 色</span></div>
               <div ref="pantoneColorsScroll" class="pantone-colors-scroll">
-                <div v-if="pagedPantoneColors.length" class="pantone-grid" :style="{'--pantone-card-min':pantoneCardWidth+'px'}"><button v-for="item in pagedPantoneColors" :key="item.code" type="button" class="pantone-swatch" :class="{'is-selected':colorDraft.source==='第三方编号参考' && colorDraft.pantone===item.code}" :aria-label="'参考编号 '+item.code+'，颜色 '+item.hex" @click="choosePantoneColor(item)"><span class="pantone-swatch__color" :style="{background:item.hex}"></span><span class="pantone-swatch__code">{{ item.code }}</span><span class="pantone-swatch__hex">{{ item.hex }}</span></button></div>
+                <div v-if="pagedPantoneColors.length" class="pantone-grid" :style="{'--pantone-card-min':pantoneCardWidth+'px'}"><button v-for="item in pagedPantoneColors" :key="item.code" type="button" class="pantone-swatch" :class="{'is-selected':colorDraft.source==='第三方编号参考' && colorDraft.pantone===item.code}" :aria-label="'参考编号 '+item.code+'，颜色 '+item.hex" :title="item.code+' · '+item.hex" @click="choosePantoneColor(item)"><span class="pantone-swatch__color" :style="{background:item.hex}"></span><span class="pantone-swatch__code">{{ item.code }}</span><span class="pantone-swatch__hex">{{ item.hex }}</span></button></div>
                 <div v-else class="field-description" style="padding:28px 0;text-align:center">当前条件下没有匹配颜色，请调整筛选范围或搜索词。</div>
               </div>
               <div v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page"><el-pagination background layout="prev, pager, next" :current-page.sync="pantonePage" :page-size="pantonePageSize" :total="filteredPantoneColors.length" :pager-count="5" @current-change="scrollPantoneColorsTop"></el-pagination></div>
