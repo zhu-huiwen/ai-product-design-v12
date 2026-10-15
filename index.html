@@ -193,7 +193,13 @@
     .pantone-swatch__color { display:block; height:42px; border:1px solid rgba(0,0,0,.07); border-radius:4px; }
     .pantone-swatch__code { display:block; margin-top:3px; font-weight:600; font-size:10px; color:#30394a; white-space:nowrap; }
     .pantone-swatch__hex { display:none; }
-    .pantone-page { display:flex; justify-content:center; padding:9px 4px; border-top:1px solid #e1e6ee; }
+    .pantone-page { display:flex; align-items:center; justify-content:center; gap:3px; padding:6px 4px; border-top:1px solid #e1e6ee; }
+    .pantone-page__numbers { display:flex; align-items:center; gap:2px; padding:2px 5px; border:1px solid #e3e9f1; border-radius:18px; background:#f8faff; }
+    .pantone-page__number,.pantone-page__arrow { display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center; border:0; border-radius:50%; background:transparent; color:#8190a3; font-size:11px; cursor:pointer; }
+    .pantone-page__number:hover,.pantone-page__arrow:hover:not(:disabled) { background:#eef2f9; color:#31445f; }
+    .pantone-page__number.is-active { border:1px solid #e3e9f1; background:#fff; color:#24364e; font-weight:600; box-shadow:0 1px 2px rgba(29,47,78,.06); }
+    .pantone-page__arrow { font-size:18px; }
+    .pantone-page__arrow:disabled { opacity:.35; cursor:default; }
     @media (max-width:800px) {
       .pantone-workspace { grid-template-columns:1fr; }
       .pantone-colors-pane { height:clamp(300px,46vh,340px); }
@@ -794,7 +800,7 @@
                 <div v-if="pagedPantoneColors.length" class="pantone-grid" :style="{'--pantone-card-min':pantoneCardWidth+'px'}"><button v-for="item in pagedPantoneColors" :key="item.code" type="button" class="pantone-swatch" :class="{'is-selected':colorDraft.source==='第三方编号参考' && colorDraft.pantone===item.code}" :aria-label="'参考编号 '+item.code+'，颜色 '+item.hex" :title="item.code+' · '+item.hex" @click="choosePantoneColor(item)"><span class="pantone-swatch__color" :style="{background:item.hex}"></span><span class="pantone-swatch__code">{{ item.code }}</span><span class="pantone-swatch__hex">{{ item.hex }}</span></button></div>
                 <div v-else class="field-description" style="padding:28px 0;text-align:center">当前条件下没有匹配颜色，请调整筛选范围或搜索词。</div>
               </div>
-              <div v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page"><el-pagination background layout="prev, pager, next" :current-page.sync="pantonePage" :page-size="pantonePageSize" :total="filteredPantoneColors.length" :pager-count="5" @current-change="scrollPantoneColorsTop"></el-pagination></div>
+              <nav v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page" aria-label="潘通色卡翻页"><button type="button" class="pantone-page__arrow" aria-label="上一页" :disabled="pantonePage===1" @click="setPantonePage(pantonePage-1)">‹</button><span class="pantone-page__numbers"><button v-for="page in pantoneVisiblePages" :key="page" type="button" class="pantone-page__number" :class="{'is-active':page===pantonePage}" :aria-label="'第 '+page+' 页'" :aria-current="page===pantonePage?'page':null" @click="setPantonePage(page)">{{ page }}</button></span><button type="button" class="pantone-page__arrow" aria-label="下一页" :disabled="pantonePage===pantoneTotalPages" @click="setPantonePage(pantonePage+1)">›</button></nav>
             </section>
             <aside class="pantone-controls-pane" aria-label="颜色筛选">
               <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX，例如 11-0103" aria-label="搜索潘通参考编号或颜色值"></el-input></div>
@@ -916,6 +922,8 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
       computed: {
         isViewer: function(){ return this.roleMode==='viewer'; },
         filteredPantoneColors: function(){ var query=(this.pantoneQuery||'').trim().toUpperCase().replace(/^#/,''),filters=this.pantoneFilters;return this.pantoneColors.filter(function(item){if(query&&item.code.indexOf(query)===-1&&item.hex.slice(1).indexOf(query)===-1)return false;return ['h','s','l'].every(function(key){var range=filters[key],value=item.hsl[key];return !range.active||value>=range.from&&value<=range.to;});}); },
+        pantoneTotalPages: function(){ return Math.ceil(this.filteredPantoneColors.length/this.pantonePageSize); },
+        pantoneVisiblePages: function(){ var first=Math.floor((this.pantonePage-1)/4)*4+1,last=Math.min(first+3,this.pantoneTotalPages),pages=[];for(var page=first;page<=last;page++)pages.push(page);return pages; },
         pagedPantoneColors: function(){ var start=(this.pantonePage-1)*this.pantonePageSize;return this.filteredPantoneColors.slice(start,start+this.pantonePageSize); },
         colorWheelCursor: function(){ var radians=this.wheelHue*Math.PI/180;var radius=this.wheelSaturation/100*108;return {left:(112+Math.sin(radians)*radius)+'px',top:(112-Math.cos(radians)*radius)+'px'}; },
         frequentColorWheelCursor: function(){ var radians=this.frequentAddHue*Math.PI/180;var radius=this.frequentAddSaturation/100*108;return {left:(112+Math.sin(radians)*radius)+'px',top:(112-Math.cos(radians)*radius)+'px'}; },
@@ -960,6 +968,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         chooseDraftColor: function(hex,source){ if(!this.validColorHex(hex))return;var normalized=hex.toUpperCase();if(this.colorDraft.hex!==normalized||this.colorDraft.source==='第三方编号参考'&&source!=='第三方编号参考')this.colorDraft.pantone='';this.colorDraft.hex=normalized;this.colorDraft.source=source||'色盘选择';this.syncWheelFromHex(this.colorDraft.hex); },
         choosePantoneColor: function(item){ this.colorDraft={hex:item.hex,pantone:item.code,source:'第三方编号参考'};this.syncWheelFromHex(item.hex); },
         scrollPantoneColorsTop: function(){ if(this.$refs.pantoneColorsScroll)this.$refs.pantoneColorsScroll.scrollTop=0; },
+        setPantonePage: function(page){ this.pantonePage=Math.max(1,Math.min(page,this.pantoneTotalPages));this.scrollPantoneColorsTop(); },
         pantoneFilterDef: function(key){ return this.pantoneFilterDefs.find(function(item){return item.key===key;}); },
         pantoneFilterLabel: function(def){ var range=this.pantoneFilters[def.key];return range.active?range.from+def.unit+'–'+range.to+def.unit:'全部'; },
         pantoneFilterSelectionStyle: function(def){ var range=this.pantoneFilters[def.key],top=def.key==='s'?1-range.to/def.max:range.from/def.max;return {top:(top*100)+'%',height:((range.to-range.from)/def.max*100)+'%'}; },
