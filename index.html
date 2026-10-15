@@ -157,27 +157,22 @@
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:3px 0 10px; }
     .pantone-toolbar .el-input { flex:1; }
     .pantone-count { white-space:nowrap; color:#697386; font-size:12px; }
-    .color-dialog--pantone { max-width:1180px; margin-top:3vh !important; }
+    .color-dialog--pantone { max-width:980px; margin-top:3vh !important; }
     .color-dialog--pantone .el-dialog__body { max-height:calc(88vh - 112px); }
-    .pantone-workspace { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
-    .pantone-selection-bar { display:flex; align-items:center; gap:10px; min-height:48px; margin:0 0 10px; padding:8px 10px; border:1px solid #dfe7f2; border-radius:10px; background:#f8faff; }
-    .pantone-selection-bar__swatch { width:30px; height:30px; flex:none; border:1px solid rgba(0,0,0,.1); border-radius:7px; background:#fff; }
-    .pantone-selection-bar__copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:2px; }
-    .pantone-selection-bar__copy strong { color:#263447; font-size:12px; }
-    .pantone-selection-bar__copy small { color:#7c8798; font-size:11px; }
-    .pantone-colors-pane { display:flex; flex-direction:column; min-width:0; height:min(58vh,540px); border:1px solid #e1e6ee; border-radius:9px; background:#fff; overflow:hidden; }
+    .pantone-workspace { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:12px; align-items:start; }
+    .pantone-colors-pane { display:flex; flex-direction:column; min-width:0; height:clamp(230px,35vh,320px); border:1px solid #e1e6ee; border-radius:9px; background:#fff; overflow:hidden; }
     .pantone-colors-head { display:flex; justify-content:space-between; align-items:center; padding:11px 13px; border-bottom:1px solid #e1e6ee; }
     .pantone-colors-head strong { color:#263447; font-size:14px; }
     .pantone-colors-scroll { flex:1; min-height:0; overflow-y:auto; padding:12px; }
-    .pantone-controls-pane { min-width:0; max-height:min(58vh,540px); overflow-y:auto; padding:0 3px 0 1px; }
+    .pantone-controls-pane { min-width:0; max-height:clamp(230px,35vh,320px); overflow-y:auto; padding:0 3px 0 1px; }
     .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--pantone-card-min,100px),1fr)); gap:8px; margin:0; }
-    .pantone-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:13px 0; padding:12px; border:1px solid #e1e6ee; border-radius:9px; background:#f9fbfe; }
+    .pantone-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:9px 0; padding:9px; border:1px solid #e1e6ee; border-radius:9px; background:#f9fbfe; }
     .pantone-filter { display:flex; min-width:0; flex-direction:column; align-items:center; }
     .pantone-filter-head { display:flex; min-height:43px; flex-direction:column; align-items:center; gap:2px; margin-bottom:5px; color:#4e5969; text-align:center; font-size:10px; }
     .pantone-filter-head strong { color:#263447; font-size:13px; }
     .pantone-filter-head span { line-height:1.2; }
     .pantone-filter-head button { padding:0 0 0 3px; border:0; background:none; color:#315cf5; cursor:pointer; font-size:10px; }
-    .pantone-filter-track { position:relative; width:42px; height:clamp(160px,24vh,220px); border:1px solid rgba(0,0,0,.13); border-radius:6px; cursor:crosshair; touch-action:none; user-select:none; overflow:hidden; box-shadow:0 3px 10px rgba(25,39,63,.13); }
+    .pantone-filter-track { position:relative; width:36px; height:clamp(120px,18vh,165px); border:1px solid rgba(0,0,0,.13); border-radius:6px; cursor:crosshair; touch-action:none; user-select:none; overflow:hidden; box-shadow:0 3px 10px rgba(25,39,63,.13); }
     .pantone-filter-track--h { background:linear-gradient(to bottom,#f33,#ff0,#0f0,#0ff,#33f,#f0f,#f33); }
     .pantone-filter-track--s { background:linear-gradient(to bottom,#f33,#b37474,#858585); }
     .pantone-filter-track--l { background:linear-gradient(to bottom,#080808,#777,#fff); }
@@ -200,8 +195,8 @@
     .pantone-page { display:flex; justify-content:center; padding:9px 4px; border-top:1px solid #e1e6ee; }
     @media (max-width:800px) {
       .pantone-workspace { grid-template-columns:1fr; }
-      .pantone-colors-pane { height:45vh; }
-      .pantone-controls-pane { max-height:none; }
+      .pantone-colors-pane { height:clamp(230px,35vh,320px); }
+      .pantone-controls-pane { max-height:clamp(230px,35vh,320px); }
       .color-role-flow__slots { grid-template-columns:1fr; }
     }
     @media (max-width:500px) { .frequent-color-section .color-quick-list { overflow-x:auto; padding:4px 0; } }
@@ -792,7 +787,6 @@
         <el-tab-pane label="潘通编号参考" name="pantone">
           <section class="color-step-card" aria-label="第一步：从潘通编号参考中选择颜色">
           <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>按潘通编号筛选参考色</small></div>
-          <div class="pantone-selection-bar" aria-live="polite"><span class="pantone-selection-bar__swatch" :style="{background:colorDraft.source==='第三方编号参考'?colorDraft.hex:'#fff'}"></span><span class="pantone-selection-bar__copy"><strong v-if="colorDraft.source==='第三方编号参考'">已选 {{ colorDraft.pantone }}</strong><strong v-else>点击下方色卡选色</strong><small v-if="colorDraft.source==='第三方编号参考'">{{ colorDraft.hex }} · 配色中已有 {{ colorSelections.length }}/8 色</small><small v-else>选中后可直接设为主色或加入参考色</small></span><el-button class="color-role-flow__add" icon="el-icon-plus" :disabled="colorDraft.source!=='第三方编号参考'" @click="addDraftColor">{{ colorDraftActionLabel }}</el-button></div>
           <div class="pantone-workspace">
             <section class="pantone-colors-pane" aria-label="潘通参考色卡">
               <div class="pantone-colors-head"><strong>颜色</strong><span class="pantone-count">{{ filteredPantoneColors.length }} / {{ pantoneColors.length }} 色</span></div>
