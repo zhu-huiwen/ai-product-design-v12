@@ -787,8 +787,8 @@
 
     <el-dialog title="选择产品配色" :visible.sync="colorDialogVisible" :width="colorTab==='pantone'?'94vw':'680px'" :custom-class="colorTab==='pantone'?'color-dialog color-dialog--pantone':'color-dialog'" append-to-body data-modal-id="main-color-picker">
       <el-tabs v-model="colorTab">
-        <el-tab-pane label="色盘" name="wheel">
-          <section class="color-step-card" aria-label="第一步：从色盘选择颜色">
+        <el-tab-pane label="HEX色盘" name="wheel">
+          <section class="color-step-card" aria-label="第一步：从HEX色盘选择颜色">
           <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>在色盘中挑选颜色</small></div>
           <div class="color-picker-layout color-picker-layout--wheel">
             <div class="color-wheel-group">
@@ -801,8 +801,8 @@
           <div class="frequent-color-section"><span class="frequent-color-title"><strong>常用颜色</strong><small>{{ frequentColors.length }}/10</small></span><div class="color-quick-list"><span v-for="hex in frequentColors" :key="hex" class="frequent-color-item" :class="{'is-selected':colorDraft.hex===hex}"><button type="button" class="color-quick" :aria-pressed="colorDraft.hex===hex" :aria-label="'试用常用色 '+hex" :title="hex" @click="chooseDraftColor(hex,'常用色')"><span class="color-quick__swatch" :style="{background:hex}"></span></button><button type="button" class="frequent-color-remove" :aria-label="'从常用色删除 '+hex" :title="'删除 '+hex" @click="removeFrequentColor(hex)">×</button></span><button v-if="frequentColors.length<10" type="button" class="frequent-color-empty" aria-label="选择颜色加入常用色" title="选择颜色加入常用色" @click="openFrequentColorAdd"><span class="frequent-color-empty__swatch">＋</span></button></div></div>
           </section>
         </el-tab-pane>
-        <el-tab-pane label="潘通编号参考" name="pantone">
-          <section class="color-step-card" aria-label="第一步：从潘通编号参考中选择颜色">
+        <el-tab-pane label="潘通FHI色号" name="pantone">
+          <section class="color-step-card" aria-label="第一步：从潘通FHI色号中选择颜色">
           <div class="color-step-card__heading"><span class="color-step-card__number">01</span><strong>选择颜色</strong><small>按潘通编号筛选参考色</small></div>
           <div class="pantone-workspace">
             <section class="pantone-colors-pane" aria-label="潘通参考色卡">
@@ -917,7 +917,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           fieldRows:[
             {name:'品类选择',type:'单选',scope:'全部品类',required:true,status:'启用'},
             {name:'企划需求',type:'多行文本',scope:'全部品类',required:true,status:'启用'},
-            {name:'产品主色与参考色',type:'多色选择 / 色盘 / 潘通编号参考 / 屏幕吸色',scope:'全部品类',required:false,status:'启用'},
+            {name:'产品主色与参考色',type:'多色选择 / HEX色盘 / 潘通FHI色号 / 屏幕吸色',scope:'全部品类',required:false,status:'启用'},
             {name:'创意方向',type:'多选标签',scope:'按品类配置',required:false,status:'启用'},
             {name:'工艺 / 成本 / 面料约束',type:'多选标签',scope:'按品类配置',required:false,status:'启用'},
             {name:'禁止项',type:'多选标签',scope:'按品类配置',required:false,status:'启用'}
