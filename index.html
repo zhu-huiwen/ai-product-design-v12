@@ -154,10 +154,11 @@
     .color-selection-chip button[aria-label^="移除"] { color:#77818f; font-size:17px; line-height:1; }
     .color-quick { display:block; width:100%; min-width:0; padding:4px; border:0; border-radius:8px; background:transparent; cursor:pointer; }
     .color-quick__swatch { display:block; width:100%; height:44px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
-    .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:0 0 6px; }
-    .pantone-toolbar .el-input { flex:1; }
+    .pantone-toolbar { display:flex; align-items:center; gap:6px; margin:0 0 6px; }
+    .pantone-toolbar .el-input { min-width:0; flex:1; }
     .pantone-toolbar .el-input__inner { height:30px; line-height:30px; padding:0 10px; font-size:11px; }
     .pantone-toolbar .el-input__suffix { line-height:30px; }
+    .pantone-toolbar__reset { flex:none; padding:4px 0; border:0; background:none; color:#718096; font-size:11px; cursor:pointer; }
     .pantone-count { white-space:nowrap; color:#697386; font-size:12px; }
     .color-dialog--pantone { max-width:980px; margin-top:3vh !important; }
     .color-dialog--pantone .el-dialog__body { max-height:calc(88vh - 112px); }
@@ -170,17 +171,17 @@
     .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,var(--pantone-card-width,70px)); justify-content:space-between; gap:6px; margin:0; }
     .pantone-filters { display:grid; min-height:0; flex:1; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:minmax(0,1fr) auto; gap:6px; margin:0; padding:8px; border:1px solid #e1e6ee; border-radius:9px; background:#f9fbfe; }
     .pantone-filter { display:flex; min-width:0; flex-direction:column; align-items:center; }
-    .pantone-filter-head { display:flex; min-height:31px; flex-direction:column; align-items:center; gap:1px; margin-bottom:3px; color:#4e5969; text-align:center; font-size:10px; }
+    .pantone-filter-head { display:flex; min-height:24px; align-items:center; justify-content:center; gap:3px; margin-bottom:4px; color:#4e5969; text-align:center; }
     .pantone-filter-head strong { color:#263447; font-size:13px; }
-    .pantone-filter-head span { line-height:1.2; }
-    .pantone-filter-head button { padding:0 0 0 3px; border:0; background:none; color:#315cf5; cursor:pointer; font-size:10px; }
+    .pantone-filter-head button { padding:0; border:0; background:none; color:#8994a4; cursor:pointer; font-size:14px; line-height:1; }
     .pantone-filter-track { position:relative; box-sizing:border-box; width:44px; min-height:0; flex:1; border:1px solid rgba(0,0,0,.13); border-radius:6px; cursor:crosshair; touch-action:none; user-select:none; overflow:hidden; box-shadow:0 3px 10px rgba(25,39,63,.13); }
     .pantone-filter-track--h { background:linear-gradient(to bottom,#f33,#ff0,#0f0,#0ff,#33f,#f0f,#f33); }
     .pantone-filter-track--s { background:linear-gradient(to bottom,#f33,#b37474,#858585); }
     .pantone-filter-track--l { background:linear-gradient(to bottom,#080808,#777,#fff); }
     .pantone-filter-selection { position:absolute; left:0; right:0; box-sizing:border-box; border:2px solid #fff; border-radius:4px; box-shadow:0 0 0 1px #18273f inset,0 0 0 999px rgba(255,255,255,.18); pointer-events:none; }
-    .pantone-filter-bounds { display:flex; align-items:center; gap:2px; margin:3px 0; color:#687385; font-size:9px; white-space:nowrap; }
-    .pantone-filter-bounds input { box-sizing:border-box; width:42px; height:23px; padding:2px; border:1px solid #d9e0ea; border-radius:5px; background:#fff; color:#3b4657; text-align:center; font-size:11px; }
+    .pantone-filter-bounds { display:flex; align-items:center; justify-content:center; gap:2px; margin:5px 0 2px; color:#8792a2; font-size:10px; white-space:nowrap; }
+    .pantone-filter-bounds input { box-sizing:border-box; width:31px; height:22px; padding:1px; border:1px solid #d9e0ea; border-radius:5px; appearance:textfield; -moz-appearance:textfield; background:#fff; color:#3b4657; text-align:center; font-size:10px; }
+    .pantone-filter-bounds input::-webkit-inner-spin-button,.pantone-filter-bounds input::-webkit-outer-spin-button { margin:0; -webkit-appearance:none; }
     .pantone-card-size { display:flex; grid-column:1/-1; min-width:0; flex-direction:column; gap:2px; margin:3px 0 0; color:#687385; font-size:11px; }
     .pantone-card-size__head,.pantone-card-size__scale { display:flex; align-items:center; justify-content:space-between; gap:8px; white-space:nowrap; }
     .pantone-card-size__head strong { color:#263447; font-size:11px; }
@@ -805,16 +806,15 @@
               <div v-if="filteredPantoneColors.length>pantonePageSize" class="pantone-page"><el-pagination background layout="prev, pager, next" :current-page.sync="pantonePage" :page-size="pantonePageSize" :total="filteredPantoneColors.length" :pager-count="5" @current-change="scrollPantoneColorsTop"></el-pagination></div>
             </section>
             <aside class="pantone-controls-pane" aria-label="颜色筛选">
-              <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX，例如 11-0103" aria-label="搜索潘通参考编号或颜色值"></el-input></div>
+              <div class="pantone-toolbar"><el-input v-model.trim="pantoneQuery" clearable placeholder="搜索编号或 HEX" aria-label="搜索潘通参考编号或颜色值"></el-input><button type="button" class="pantone-toolbar__reset" aria-label="清除全部筛选" title="清除全部筛选" @click="resetPantoneFilters">重置</button></div>
 
               <div class="pantone-filters">
                 <div v-for="filter in pantoneFilterDefs" :key="filter.key" class="pantone-filter">
-                  <div class="pantone-filter-head"><strong>{{ filter.label }}</strong><span>{{ pantoneFilterLabel(filter) }} <button v-if="pantoneFilters[filter.key].active" type="button" :aria-label="'清除'+filter.label+'筛选'" @click="resetPantoneFilter(filter.key)">清除</button></span></div>
-                  <label class="pantone-filter-bounds"><span>{{ filter.key==='s'?'上限':'下限' }}</span><input type="number" :min="0" :max="filter.max" :value="filter.key==='s'?pantoneFilters[filter.key].to:pantoneFilters[filter.key].from" :aria-label="filter.label+(filter.key==='s'?'最大值':'最小值')" @change="setPantoneFilterBound(filter.key,filter.key==='s'?'to':'from',$event)"></label>
+                  <div class="pantone-filter-head"><strong>{{ filter.label }}</strong><button v-if="pantoneFilters[filter.key].active" type="button" :aria-label="'清除'+filter.label+'筛选'" :title="'清除'+filter.label+'筛选'" @click="resetPantoneFilter(filter.key)">×</button></div>
                   <div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'上下拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div>
-                  <label class="pantone-filter-bounds"><span>{{ filter.key==='s'?'下限':'上限' }} {{ filter.unit }}</span><input type="number" :min="0" :max="filter.max" :value="filter.key==='s'?pantoneFilters[filter.key].from:pantoneFilters[filter.key].to" :aria-label="filter.label+(filter.key==='s'?'最小值':'最大值')" @change="setPantoneFilterBound(filter.key,filter.key==='s'?'from':'to',$event)"></label>
+                  <div class="pantone-filter-bounds"><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].from" :aria-label="filter.label+'最小值'" @change="setPantoneFilterBound(filter.key,'from',$event)"><span>–</span><input type="number" :min="0" :max="filter.max" :value="pantoneFilters[filter.key].to" :aria-label="filter.label+'最大值'" @change="setPantoneFilterBound(filter.key,'to',$event)"></div>
                 </div>
-                <div class="pantone-card-size"><div class="pantone-card-size__head"><strong>色卡大小</strong><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div><input type="range" min="50" max="100" step="1" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><div class="pantone-card-size__scale"><span>50 px</span><span>100 px</span></div></div>
+                <div class="pantone-card-size"><div class="pantone-card-size__head"><strong>色卡大小</strong></div><input type="range" min="50" max="100" step="1" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><div class="pantone-card-size__scale"><span>50 px</span><span>100 px</span></div></div>
               </div>
             </aside>
           </div>
@@ -969,7 +969,6 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         choosePantoneColor: function(item){ this.colorDraft={hex:item.hex,pantone:item.code,source:'第三方编号参考'};this.syncWheelFromHex(item.hex); },
         scrollPantoneColorsTop: function(){ if(this.$refs.pantoneColorsScroll)this.$refs.pantoneColorsScroll.scrollTop=0; },
         pantoneFilterDef: function(key){ return this.pantoneFilterDefs.find(function(item){return item.key===key;}); },
-        pantoneFilterLabel: function(def){ var range=this.pantoneFilters[def.key];return range.active?range.from+def.unit+'–'+range.to+def.unit:'全部'; },
         pantoneFilterSelectionStyle: function(def){ var range=this.pantoneFilters[def.key],top=def.key==='s'?1-range.to/def.max:range.from/def.max;return {top:(top*100)+'%',height:((range.to-range.from)/def.max*100)+'%'}; },
         pantoneFilterValue: function(key,event){ var rect=event.currentTarget.getBoundingClientRect(),def=this.pantoneFilterDef(key),fraction=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height));return Math.round((key==='s'?1-fraction:fraction)*def.max); },
         startPantoneFilterDrag: function(key,event){ if(event.button!==0&&event.pointerType==='mouse')return;var value=this.pantoneFilterValue(key,event);this.pantoneDrag={key:key,start:value,pointerId:event.pointerId};this.$set(this.pantoneFilters,key,{active:true,from:value,to:value});event.currentTarget.setPointerCapture(event.pointerId); },
