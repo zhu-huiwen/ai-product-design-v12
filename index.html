@@ -156,6 +156,8 @@
     .color-quick__swatch { display:block; width:100%; height:44px; border-radius:5px; border:1px solid rgba(0,0,0,.12); }
     .pantone-toolbar { display:flex; align-items:center; gap:12px; margin:0 0 6px; }
     .pantone-toolbar .el-input { flex:1; }
+    .pantone-toolbar .el-input__inner { height:30px; line-height:30px; padding:0 10px; font-size:11px; }
+    .pantone-toolbar .el-input__suffix { line-height:30px; }
     .pantone-count { white-space:nowrap; color:#697386; font-size:12px; }
     .color-dialog--pantone { max-width:980px; margin-top:3vh !important; }
     .color-dialog--pantone .el-dialog__body { max-height:calc(88vh - 112px); }
@@ -165,7 +167,7 @@
     .pantone-colors-head strong { color:#263447; font-size:14px; }
     .pantone-colors-scroll { flex:1; min-height:0; overflow-y:auto; padding:12px; }
     .pantone-controls-pane { min-width:0; padding:0 3px 0 1px; }
-    .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--pantone-card-min,100px),1fr)); gap:8px; margin:0; }
+    .pantone-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(var(--pantone-card-min,70px),1fr)); gap:6px; margin:0; }
     .pantone-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:0; padding:8px; border:1px solid #e1e6ee; border-radius:9px; background:#f9fbfe; }
     .pantone-filter { display:flex; min-width:0; flex-direction:column; align-items:center; }
     .pantone-filter-head { display:flex; min-height:31px; flex-direction:column; align-items:center; gap:1px; margin-bottom:3px; color:#4e5969; text-align:center; font-size:10px; }
@@ -186,10 +188,10 @@
     .pantone-card-size input { display:block; width:100%; margin:0; accent-color:#315cf5; }
     .pantone-card-size__scale { color:#8b95a3; font-size:11px; }
     .pantone-card-size__scale strong { color:#263447; font-weight:600; }
-    .pantone-swatch { display:block; padding:5px; border:1px solid #dfe5ee; border-radius:8px; background:#fff; text-align:left; cursor:pointer; }
+    .pantone-swatch { display:block; min-width:0; padding:4px; border:1px solid #dfe5ee; border-radius:7px; background:#fff; text-align:left; cursor:pointer; }
     .pantone-swatch:hover,.pantone-swatch.is-selected { border-color:#315cf5; box-shadow:0 0 0 1px #315cf5; }
-    .pantone-swatch__color { display:block; height:56px; border:1px solid rgba(0,0,0,.07); border-radius:5px; }
-    .pantone-swatch__code { display:block; margin-top:4px; font-weight:600; font-size:11px; color:#30394a; }
+    .pantone-swatch__color { display:block; height:42px; border:1px solid rgba(0,0,0,.07); border-radius:4px; }
+    .pantone-swatch__code { display:block; margin-top:3px; font-weight:600; font-size:10px; color:#30394a; white-space:nowrap; }
     .pantone-swatch__hex { display:none; }
     .pantone-page { display:flex; justify-content:center; padding:9px 4px; border-top:1px solid #e1e6ee; }
     @media (max-width:800px) {
@@ -804,7 +806,7 @@
                   <div class="pantone-filter-track" :class="'pantone-filter-track--'+filter.key" role="button" :aria-label="'上下拖动选择'+filter.label+'范围'" @pointerdown="startPantoneFilterDrag(filter.key,$event)" @pointermove="movePantoneFilterDrag(filter.key,$event)" @pointerup="endPantoneFilterDrag(filter.key,$event)" @pointercancel="cancelPantoneFilterDrag" @lostpointercapture="cancelPantoneFilterDrag"><span v-if="pantoneFilters[filter.key].active" class="pantone-filter-selection" :style="pantoneFilterSelectionStyle(filter)"></span></div>
                   <label class="pantone-filter-bounds"><span>{{ filter.key==='s'?'下限':'上限' }} {{ filter.unit }}</span><input type="number" :min="0" :max="filter.max" :value="filter.key==='s'?pantoneFilters[filter.key].from:pantoneFilters[filter.key].to" :aria-label="filter.label+(filter.key==='s'?'最小值':'最大值')" @change="setPantoneFilterBound(filter.key,filter.key==='s'?'from':'to',$event)"></label>
                 </div>
-                <div class="pantone-card-size"><div class="pantone-card-size__head"><strong>色卡大小</strong><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div><input type="range" min="90" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><div class="pantone-card-size__scale"><span>90 px</span><strong>当前 {{ pantoneCardWidth }} px</strong><span>160 px</span></div></div>
+                <div class="pantone-card-size"><div class="pantone-card-size__head"><strong>色卡大小</strong><el-button type="text" @click="resetPantoneFilters">清除全部筛选</el-button></div><input type="range" min="60" max="160" step="10" v-model.number="pantoneCardWidth" aria-label="调整色卡大小"><div class="pantone-card-size__scale"><span>60 px</span><strong>当前 {{ pantoneCardWidth }} px</strong><span>160 px</span></div></div>
               </div>
             </aside>
           </div>
@@ -879,7 +881,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           planningMessage: '请填写企划需求；关键操作后自动保存。', planningMessageType: 'info',
           promptLoading: false, imageLoading: false, showRetryButton: false, promptDialogVisible: false, previewDialogVisible: false,
           acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, historyDrawerVisible: false,
-          colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], frequentColorAddVisible:false, frequentColorDraft:{hex:''}, frequentAddHue:200, frequentAddSaturation:0, frequentAddBrightness:100, frequentAddDragging:false, pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:100, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
+          colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], frequentColorAddVisible:false, frequentColorDraft:{hex:''}, frequentAddHue:200, frequentAddSaturation:0, frequentAddBrightness:100, frequentAddDragging:false, pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:70, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
           imageKinds: [{key:'sketch',label:'线稿'},{key:'competitor',label:'竞品'},{key:'creative',label:'创意'}],
