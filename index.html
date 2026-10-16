@@ -302,9 +302,39 @@
     .drawer-section { margin-bottom: 18px; padding: 18px; border-radius: 8px; background: #fff; box-shadow: 0 1px 5px rgba(52,52,52,.06); }
     .drawer-section__title { margin: 0 0 16px; padding-left: 9px; border-left: 3px solid var(--sw-primary); color: #303133; font-size: 15px; font-weight: 600; }
     .drawer-footer { position: sticky; bottom: -20px; display: flex; margin: 20px -20px -20px; padding: 12px 20px; justify-content: flex-end; gap: 10px; border-top: 1px solid #ECEEF3; background: #fff; }
-    .refine-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
-    .refine-preview { min-height: 420px; border-radius: 8px; background: #F7F8FA; overflow: hidden; }
-    .refine-preview img { width: 100%; height: 420px; object-fit: cover; }
+    .refine-workspace { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(290px,.85fr); grid-template-rows:minmax(0,1fr) auto; gap:14px; height:calc(100vh - 166px); min-height:490px; }
+    .refine-canvas { position:relative; display:flex; min-height:0; align-items:center; justify-content:center; overflow:hidden; border:1px solid #e6e9ef; border-radius:14px; background:#f5f6f8; cursor:crosshair; user-select:none; }
+    .refine-canvas img { display:block; width:100%; max-height:100%; object-fit:contain; pointer-events:none; }
+    .refine-annotation-box { position:absolute; z-index:2; border:2px solid #2563eb; border-radius:4px; background:rgba(37,99,235,.1); pointer-events:none; }
+    .refine-annotation-box span { position:absolute; top:-22px; left:-2px; min-width:22px; padding:2px 6px; border-radius:4px 4px 0 0; color:white; background:#2563eb; font-size:11px; line-height:18px; }
+    .refine-inspector { display:flex; min-height:0; flex-direction:column; gap:12px; }
+    .refine-panel { overflow:hidden; border:1px solid #e6e9ef; border-radius:12px; background:#fff; }
+    .refine-panel__head { display:flex; min-height:42px; padding:0 14px; align-items:center; justify-content:space-between; border-bottom:1px solid #edf0f4; color:#243047; font-size:13px; font-weight:600; }
+    .refine-panel__head small { color:#8993a3; font-weight:400; }
+    .refine-version-list { min-height:138px; max-height:230px; padding:8px; overflow-y:auto; }
+    .refine-version { display:flex; width:100%; min-height:38px; padding:7px 10px; align-items:center; gap:9px; border:0; border-radius:7px; color:#536174; background:transparent; text-align:left; cursor:pointer; }
+    .refine-version:hover, .refine-version.is-active { color:#243047; background:#f0f4fa; }
+    .refine-version__dot { width:7px; height:7px; flex:none; border-radius:50%; background:#3478eb; }
+    .refine-version__label { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .refine-version__tag { padding:2px 7px; border-radius:10px; color:#637086; background:#e8edf4; font-size:11px; }
+    .refine-version__tag.is-primary { color:#fff; background:#2869da; }
+    .refine-note-list { min-height:114px; max-height:240px; padding:10px; overflow-y:auto; }
+    .refine-note-empty { padding:15px 8px; border:1px dashed #e2e6ed; border-radius:8px; color:#9ca6b4; font-size:12px; text-align:center; }
+    .refine-note-row { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+    .refine-note-index { display:grid; width:22px; height:22px; flex:none; place-items:center; border-radius:6px; color:#fff; background:#2869da; font-size:11px; }
+    .refine-composer { grid-column:1/-1; padding:14px; border:1px solid #e6e9ef; border-radius:12px; background:#fff; }
+    .refine-composer__hint { margin-bottom:8px; color:#8993a3; font-size:12px; line-height:1.5; }
+    .refine-composer .el-textarea__inner { min-height:80px; padding:4px 0; border:0; box-shadow:none; resize:vertical; }
+    .refine-composer__foot { display:flex; margin-top:10px; align-items:flex-end; justify-content:space-between; gap:12px; }
+    .refine-composer__tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .refine-reference { position:relative; display:inline-flex; width:38px; height:38px; overflow:visible; border:1px solid #dce3ec; border-radius:7px; }
+    .refine-reference img { width:100%; height:100%; border-radius:6px; object-fit:cover; }
+    .refine-reference button { position:absolute; top:-7px; right:-7px; width:17px; height:17px; padding:0; border:0; border-radius:50%; color:#fff; background:#5e6a79; cursor:pointer; }
+    .refine-advanced-row { display:flex; align-items:center; gap:10px; margin:0 0 14px; }
+    .refine-advanced-row strong { width:72px; flex:none; font-size:13px; }
+    .refine-chip { display:inline-flex; padding:5px 10px; border:1px solid #dce3ec; border-radius:16px; color:#697586; background:#fff; font-size:12px; cursor:pointer; }
+    .refine-chip.is-selected { border-color:#b9d0fb; color:#1f57ac; background:#eef4ff; }
+    @media (max-width:900px) { .refine-workspace { grid-template-columns:1fr; grid-template-rows:auto; height:auto; min-height:0; } .refine-canvas { min-height:320px; } .refine-canvas img { max-height:460px; } .refine-composer { grid-column:1; } }
     .model-lock { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #DDE2EC; border-radius: 4px; color: #606266; background: #F7F8FB; font-size: 12px; }
     .metric-table td { padding: 8px 10px; border-bottom: 1px solid #ECEEF3; line-height: 20px; }
     .metric-table { width: 100%; border-collapse: collapse; }
@@ -936,14 +966,23 @@
       <div class="drawer-footer"><el-button @click="detailDrawerVisible=false">关闭</el-button><el-button :disabled="isViewer" @click="detailDrawerVisible=false;openExtension(selectedCreative)">延伸生图</el-button><el-button type="primary" :disabled="isViewer" @click="detailDrawerVisible=false;openRefine(selectedCreative)">进入精修</el-button></div>
     </el-drawer>
 
-    <el-drawer title="单图精修 · 生成新版本" :visible.sync="refineDrawerVisible" size="73%" direction="rtl" append-to-body data-drawer-id="single-image-refine" data-user-task="单图精修生成新版本">
-      <el-alert type="info" :closable="false" show-icon data-flow-step="entry" title="入口：创意图卡片 / 精修｜角色：设计师｜前置条件：存在成功创意图"></el-alert>
-      <div class="refine-layout" style="margin-top:14px" data-flow-step="action">
-        <div class="refine-preview"><img :src="selectedCreative.image" :alt="selectedCreative.name"></div>
-        <section class="drawer-section"><h2 class="drawer-section__title">精修参数</h2><el-form label-position="top"><el-form-item label="生图模型"><el-input value="Nano Banana 2" disabled data-field-description="精修模型：固定 Nano Banana 2；Seedream 5 不可选择。"></el-input></el-form-item><el-form-item label="修改内容"><el-input v-model="refine.prompt" type="textarea" :rows="5" maxlength="500" show-word-limit placeholder="输入本次需要修改的内容" data-field-description="修改内容：必填；最多 500 字；空值不得生成新版本。"></el-input></el-form-item><el-form-item label="精修验收场景"><el-radio-group v-model="refine.scenario"><el-radio label="success">成功</el-radio><el-radio label="failed">失败</el-radio><el-radio label="processing">处理中/连接异常</el-radio></el-radio-group><div class="field-description">仅用于演示成功、失败与处理中反馈。</div></el-form-item><el-button type="primary" style="width:100%" :loading="refine.loading" @click="generateRefinedVersion">{{ refine.loading ? '生成中' : (refine.messageType==='error' ? '重新生成' : '生成新版本') }}</el-button></el-form></section>
+    <el-drawer :title="'精修 · '+selectedCreative.code" :visible.sync="refineDrawerVisible" size="86%" direction="rtl" append-to-body data-drawer-id="single-image-refine" data-user-task="单图精修生成新版本">
+      <div class="refine-workspace" data-flow-step="action">
+        <div class="refine-canvas" @mousedown="startRefineAnnotation" @mousemove="moveRefineAnnotation" @mouseup="finishRefineAnnotation" @mouseleave="finishRefineAnnotation" title="在图片上拖拽框选需要修改的区域">
+          <img :src="refineCurrentVersion.image || selectedCreative.image" :alt="selectedCreative.name" :style="{filter:refineCurrentVersion.filter||'none'}">
+          <div v-for="(note,index) in refine.annotations" :key="note.id" class="refine-annotation-box" :style="annotationStyle(note)"><span>{{ index+1 }}</span></div>
+          <div v-if="refine.draftRect" class="refine-annotation-box" :style="annotationStyle(refine.draftRect)"></div>
+        </div>
+        <aside class="refine-inspector">
+          <div class="refine-panel"><div class="refine-panel__head"><span>版本历史</span><small>深度 {{ refine.versions.length }} / 4</small></div><div class="refine-version-list"><button v-for="(version,index) in refine.versions" :key="version.id" type="button" class="refine-version" :class="{'is-active':refine.activeVersionIndex===index}" @click="selectRefineVersion(index)"><span class="refine-version__dot"></span><span class="refine-version__label">{{ version.code }} <small>{{ index===0?'一级':'第 '+(index+1)+' 版' }}</small></span><span class="refine-version__tag" :class="{'is-primary':index===0}">{{ index===0?'主版本':'精修版' }}</span></button></div></div>
+          <div class="refine-panel" style="flex:1"><div class="refine-panel__head"><span>图片标注（{{ refine.annotations.length }} 个）</span><small>在主图上拖拽框选</small></div><div class="refine-note-list"><div v-if="!refine.annotations.length" class="refine-note-empty">框选想调整的区域，再写下具体修改要求</div><div v-for="(note,index) in refine.annotations" :key="note.id" class="refine-note-row"><span class="refine-note-index">{{ index+1 }}</span><el-input v-model="note.text" size="mini" :placeholder="'标注 '+(index+1)+'：希望怎样修改？'"></el-input><el-button type="text" icon="el-icon-close" aria-label="删除标注" @click="removeRefineAnnotation(index)"></el-button></div></div></div>
+        </aside>
+        <div class="refine-composer"><div class="refine-composer__hint">描述要保留的主体和想调整的细节。局部修改可先在图上框选并填写标注。</div><el-input v-model="refine.prompt" type="textarea" :rows="3" maxlength="500" show-word-limit placeholder="例如：保留原有版型，把局部提花改得更细密，配色更柔和……" data-field-description="修改内容：最多 500 字；填写文字或图片标注后才能生成。"></el-input><div class="refine-composer__foot"><div class="refine-composer__tools"><input ref="refineFileInput" type="file" accept="image/*" multiple style="display:none" @change="addRefineReferences"><el-button icon="el-icon-plus" size="mini" title="添加参考图片" @click="$refs.refineFileInput.click()"></el-button><span v-for="(file,index) in refine.references" :key="file.id" class="refine-reference"><img :src="file.url" :alt="file.name"><button type="button" :aria-label="'移除'+file.name" @click="removeRefineReference(index)">×</button></span><el-button size="mini" @click="refineAdvancedVisible=true">高级参数</el-button></div><el-button type="primary" :loading="refine.loading" :disabled="!canGenerateRefine" @click="generateRefinedVersion">{{ refine.loading ? '生成中…' : '生成新版本' }}</el-button></div></div>
       </div>
-      <el-alert v-if="refine.message" style="margin-top:14px" :title="refine.message" :type="refine.messageType" :closable="false" show-icon data-flow-step="result"></el-alert>
+      <details style="margin-top:12px;color:#8993a3;font-size:12px"><summary>演示状态</summary><el-radio-group v-model="refine.scenario" size="mini"><el-radio label="success">成功</el-radio><el-radio label="failed">失败</el-radio><el-radio label="processing">处理中</el-radio></el-radio-group></details>
+      <el-alert v-if="refine.message" style="margin-top:12px" :title="refine.message" :type="refine.messageType" :closable="false" show-icon data-flow-step="result"></el-alert>
     </el-drawer>
+    <el-dialog title="高级参数" :visible.sync="refineAdvancedVisible" width="560px" append-to-body><div class="refine-advanced-row"><strong>门襟</strong><button type="button" class="refine-chip" :class="{'is-selected':refine.cuff==='无'}" @click="refine.cuff='无'">无</button><button v-if="refine.customCuff" type="button" class="refine-chip" :class="{'is-selected':refine.cuff===refine.customCuff}" @click="refine.cuff=refine.customCuff">{{ refine.customCuff }}</button><el-button size="mini" @click="editRefineTag('cuff')">+ 自定义标签</el-button></div><div class="refine-advanced-row"><strong>图案 / 花型</strong><button type="button" class="refine-chip" :class="{'is-selected':refine.pattern==='无图案'}" @click="refine.pattern='无图案'">无图案</button><button v-if="refine.customPattern" type="button" class="refine-chip" :class="{'is-selected':refine.pattern===refine.customPattern}" @click="refine.pattern=refine.customPattern">{{ refine.customPattern }}</button><el-button size="mini" @click="editRefineTag('pattern')">+ 自定义标签</el-button></div><span slot="footer"><el-button @click="refineAdvancedVisible=false">关闭</el-button><el-button type="primary" @click="refineAdvancedVisible=false">应用</el-button></span></el-dialog>
 
     <el-drawer title="历史设计详情" :visible.sync="historyDrawerVisible" size="73%" direction="rtl" append-to-body data-drawer-id="history-detail">
       <section class="drawer-section"><h2 class="drawer-section__title">历史信息</h2><el-form label-width="110px"><el-row :gutter="20"><el-col :span="12"><el-form-item label="设计名称"><el-input :value="selectedHistory.name" disabled></el-input></el-form-item></el-col><el-col :span="12"><el-form-item label="品类"><el-input :value="selectedHistory.category" disabled></el-input></el-form-item></el-col><el-col :span="12"><el-form-item label="原生图模型"><el-input :value="selectedHistory.model" disabled></el-input></el-form-item></el-col><el-col :span="12"><el-form-item label="恢复后模型"><el-input :value="selectedHistory.model==='Seedream 5'?'Nano Banana 2':selectedHistory.model" disabled></el-input></el-form-item></el-col></el-row></el-form></section>
@@ -971,7 +1010,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           activeMenu: 'product', currentPage: 'planning', roleMode: 'designer', planningStep: 0,
           planningMessage: '请填写企划需求；关键操作后自动保存。', planningMessageType: 'info',
           promptLoading: false, imageLoading: false, showRetryButton: false, promptDialogVisible: false, previewDialogVisible: false,
-          acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, extensionVisible: false, historyDrawerVisible: false,
+          acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, refineAdvancedVisible:false, extensionVisible: false, historyDrawerVisible: false,
           colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], frequentColorAddVisible:false, frequentColorDraft:{hex:''}, frequentAddHue:200, frequentAddSaturation:0, frequentAddBrightness:100, frequentAddDragging:false, pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:70, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
@@ -986,7 +1025,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           generation: {formats:['PNG'],ratio:'3:4',resolution:'4K'}, creativeKeyword:'', creativeStatus:'全部', creativePage:1, creativePageSize:6,
           creatives: [], selectedCreative:{name:'',code:'',desc:'',tags:[],image:'',final:false}, extensionSource:{id:'',code:'',name:'',image:''}, extension:{prompt:'',loading:false},
           generationMainColor:{hex:'',pantone:'',source:''},
-          refine: {prompt:'保持中筒袜版型，将局部提花调整为更细密的浅蓝波点，并保留奶白色主体。',scenario:'success',loading:false,message:'',messageType:'info',version:1},
+          refine: {prompt:'',scenario:'success',loading:false,message:'',messageType:'info',versions:[],activeVersionIndex:0,annotations:[],draftRect:null,dragStart:null,references:[],cuff:'无',pattern:'无图案',customCuff:'',customPattern:''},
           historyFilters:{keyword:'',category:'',status:'全部'}, historyPage:1, historyPageSize:5, historyMessage:'', selectedHistory:{},
           fieldRows:[
             {name:'品类选择',type:'单选',scope:'全部品类',required:true,status:'启用'},
@@ -1028,6 +1067,8 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         successfulCreativeCount: function(){ return this.creatives.filter(function(item){return !item.failed;}).length; },
         filteredCreatives: function(){ var self=this; return this.creatives.filter(function(item){var byKeyword=!self.creativeKeyword||item.name.indexOf(self.creativeKeyword.trim())!==-1;var byStatus=self.creativeStatus==='已移除'?item.removed:(self.creativeStatus==='定稿'?item.final&&!item.removed:!item.removed);return byKeyword&&byStatus;}); },
         pagedCreatives: function(){ return this.filteredCreatives.slice((this.creativePage-1)*this.creativePageSize,this.creativePage*this.creativePageSize); },
+        refineCurrentVersion: function(){ return this.refine.versions[this.refine.activeVersionIndex]||{}; },
+        canGenerateRefine: function(){ return !this.refine.loading&&this.refine.versions.length<4&&Boolean(this.refine.prompt.trim()||this.refine.annotations.some(function(note){return note.text.trim();})); },
         filteredHistory: function(){ var self=this; return this.historyRows.filter(function(row){var key=self.historyFilters.keyword.trim();var byKey=!key||[row.name,row.creator,row.category].join(' ').indexOf(key)!==-1;var byCategory=!self.historyFilters.category||row.category===self.historyFilters.category;var byStatus=self.historyFilters.status==='全部'||row.status===self.historyFilters.status;return byKey&&byCategory&&byStatus;}); },
         pagedHistory: function(){ return this.filteredHistory.slice((this.historyPage-1)*this.historyPageSize,this.historyPage*this.historyPageSize); }
       },
@@ -1276,9 +1317,42 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         },
         openCreativeDetail: function(item){ if(item.failed||item.retrying)return;this.selectedCreative=item;this.detailDrawerVisible=true; },
         removeCreative: function(item){ item.removed=true;item.final=false;this.$message.success('已移至“已移除”'); },
-        openRefine: function(item){ if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}this.selectedCreative=item;this.refine.message='';this.refineDrawerVisible=true; },
+        openRefine: function(item){
+          if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}
+          this.refine.references.forEach(function(file){URL.revokeObjectURL(file.url);});
+          this.selectedCreative=item;
+          if(!item.refineVersions)this.$set(item,'refineVersions',[{id:item.id+'-original',code:item.code,image:item.image,filter:'',prompt:''}]);
+          this.refine.versions=item.refineVersions;
+          this.refine.activeVersionIndex=item.refineVersions.length-1;
+          this.refine.references=[];this.refine.draftRect=null;this.refine.dragStart=null;
+          this.refine.customCuff='';this.refine.customPattern='';this.refine.message='';this.refine.messageType='info';
+          this.selectRefineVersion(this.refine.activeVersionIndex);
+          this.refineDrawerVisible=true;
+        },
+        annotationStyle: function(note){return {left:note.x+'%',top:note.y+'%',width:note.w+'%',height:note.h+'%'};},
+        selectRefineVersion: function(index){var version=this.refine.versions[index];if(!version)return;this.refine.activeVersionIndex=index;this.refine.prompt=version.prompt||'';this.refine.annotations=(version.annotations||[]).map(function(note){return Object.assign({},note);});this.refine.cuff=version.cuff||'无';this.refine.pattern=version.pattern||'无图案';},
+        refinePoint: function(event){var box=event.currentTarget.getBoundingClientRect();return {x:Math.max(0,Math.min(100,(event.clientX-box.left)/box.width*100)),y:Math.max(0,Math.min(100,(event.clientY-box.top)/box.height*100))};},
+        startRefineAnnotation: function(event){if(event.button!==0)return;this.refine.dragStart=this.refinePoint(event);this.refine.draftRect=null;},
+        moveRefineAnnotation: function(event){if(!this.refine.dragStart)return;var start=this.refine.dragStart,end=this.refinePoint(event);this.refine.draftRect={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(end.x-start.x),h:Math.abs(end.y-start.y)};},
+        finishRefineAnnotation: function(){var note=this.refine.draftRect;if(note&&note.w>2&&note.h>2){this.refine.annotations.push(Object.assign({id:Date.now()+'-'+Math.random().toString(36).slice(2),text:''},note));}this.refine.dragStart=null;this.refine.draftRect=null;},
+        removeRefineAnnotation: function(index){this.refine.annotations.splice(index,1);},
+        addRefineReferences: function(event){var self=this;Array.from(event.target.files||[]).slice(0,Math.max(0,4-this.refine.references.length)).forEach(function(file){if(file.type.indexOf('image/')===0)self.refine.references.push({id:Date.now()+'-'+Math.random(),name:file.name,url:URL.createObjectURL(file)});});event.target.value='';},
+        removeRefineReference: function(index){var file=this.refine.references.splice(index,1)[0];if(file)URL.revokeObjectURL(file.url);},
+        editRefineTag: function(field){var self=this;this.$prompt('输入自定义标签','高级参数',{inputPattern:/\S+/,inputErrorMessage:'请输入标签名称',confirmButtonText:'添加',cancelButtonText:'取消'}).then(function(result){var value=result.value.trim();if(field==='cuff'){self.refine.customCuff=value;self.refine.cuff=value;}else{self.refine.customPattern=value;self.refine.pattern=value;}}).catch(function(){});},
         toggleFinal: function(item){ item.final=!item.final;this.$message.success(item.final?'已标记定稿候选':'已取消定稿候选'); },
-        generateRefinedVersion: function(){ var self=this;if(!this.refine.prompt.trim()){this.$message.error('请输入修改内容');return;}this.refine.loading=true;this.refine.message='正在使用 Nano Banana 2 生成精修版本…';this.refine.messageType='info';setTimeout(function(){self.refine.loading=false;if(self.refine.scenario==='processing'){self.refine.message='任务仍在处理中；已保留原图、当前版本与全部精修参数，可离开后从历史任务恢复。';self.refine.messageType='warning';self.$message.warning('任务仍在处理中');return;}if(self.refine.scenario==='failed'){self.refine.message='精修生成失败，请重试；已保留原图、当前版本、提示词、专业参数、参考图及局部标注，未创建失败版本节点。';self.refine.messageType='error';self.$message.error('精修生成失败，请重试');return;}self.refine.version+=1;self.refine.message='精修版本 v'+self.refine.version+' 已生成，并同步到当前创意图。';self.refine.messageType='success';self.$message.success('精修版本已生成');},900); },
+        generateRefinedVersion: function(){
+          var self=this;if(!this.canGenerateRefine)return;
+          this.refine.loading=true;this.refine.message='正在生成精修版本…';this.refine.messageType='info';
+          setTimeout(function(){
+            self.refine.loading=false;
+            if(self.refine.scenario==='processing'){self.refine.message='任务仍在处理中，当前修改内容和标注已保留。';self.refine.messageType='warning';return;}
+            if(self.refine.scenario==='failed'){self.refine.message='生成失败，请调整描述后重试；原图和现有版本已保留。';self.refine.messageType='error';return;}
+            var index=self.refine.versions.length+1;
+            var version={id:self.selectedCreative.id+'-v'+index,code:self.selectedCreative.code+'-V'+index,image:self.refine.versions[0].image,filter:'hue-rotate('+((index-1)*10)+'deg) saturate('+(1+(index-1)*.07)+')',prompt:self.refine.prompt.trim(),annotations:self.refine.annotations.map(function(note){return Object.assign({},note);}),references:self.refine.references.map(function(file){return file.name;}),cuff:self.refine.cuff,pattern:self.refine.pattern};
+            self.refine.versions.push(version);self.refine.activeVersionIndex=self.refine.versions.length-1;
+            self.refine.message='已创建 '+version.code+'，可在版本历史中切换查看。';self.refine.messageType='success';self.$message.success('已生成新版本');
+          },900);
+        },
         resetHistoryFilters: function(){ this.historyFilters={keyword:'',category:'',status:'全部'};this.historyPage=1;this.historyMessage='筛选条件已重置，页码已回到第 1 页。'; },
         openHistoryDetail: function(row){ this.selectedHistory=row;this.historyDrawerVisible=true; },
         resumeDesign: function(row){ this.planning.category=row.category;this.currentPage='planning';this.activeMenu='product';if(row.model==='Seedream 5'){this.historyMessage='原模型已下架，已自动切换为 Nano Banana 2';this.planningMessage='原模型已下架，已自动切换为 Nano Banana 2';this.planningMessageType='warning';this.$message.warning('原模型已下架，已自动切换为 Nano Banana 2');}else{this.planningMessage='已恢复未完成设计，继续使用 Nano Banana 2。';this.planningMessageType='success';this.$message.success('已恢复未完成设计');} }
