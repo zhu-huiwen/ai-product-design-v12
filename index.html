@@ -525,18 +525,31 @@
     .creative-branch-actions .el-button { width:auto; min-width:0; flex:1; height:44px; margin:0; border-radius:9px; font-size:15px; }
     .creative-branch-actions .el-button+.el-button { margin-left:0; }
     .creative-branch-actions .creative-refine.el-button { margin-top:0; }
-    .creative-extension-dialog .el-dialog__body { padding-top:8px; }
-    .creative-extension-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
-    .creative-extension-source { overflow:hidden; border:1px solid #e5e9ef; border-radius:11px; background:#f7f8fa; }
-    .creative-extension-source img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; }
-    .creative-extension-source__label { padding:11px 13px; color:#4f5966; font-size:13px; }
-    .creative-extension-source__label strong { color:#263447; }
-    .creative-extension-form__lead { margin:0 0 14px; color:#4a5564; font-size:14px; line-height:1.65; }
-    .creative-extension-form label { display:block; margin-bottom:7px; color:#263447; font-size:13px; font-weight:600; }
-    .creative-extension-form .el-textarea__inner { border-radius:8px; }
-    .creative-extension-form__hint { margin:12px 0 0; color:#7e8996; font-size:12px; line-height:1.6; }
-    .creative-extension-dialog .el-dialog__footer .el-button { border-radius:8px; }
-    @media (max-width:720px) { .creative-extension-layout { grid-template-columns:1fr; } }
+    .creative-extension-dialog { max-width:calc(100vw - 32px); overflow:hidden; border-radius:14px; }
+    .creative-extension-dialog .el-dialog__header { padding:20px 24px 8px; }
+    .creative-extension-dialog .el-dialog__title { color:#273343; font-size:19px; font-weight:600; }
+    .creative-extension-dialog .el-dialog__body { padding:4px 24px 14px; }
+    .creative-extension-dialog .el-dialog__footer { padding:0 24px 20px; }
+    .creative-extension-dialog .el-dialog__footer .el-button { min-height:36px; padding:8px 16px; border-radius:8px; font-size:13px; }
+    .creative-extension-intro { margin:0 0 15px; color:#7b8795; font-size:13px; }
+    .creative-extension-source { display:flex; align-items:center; gap:14px; padding:9px; border:1px solid #e4e9ef; border-radius:10px; background:#f8fafc; }
+    .creative-extension-source__thumb { width:122px; height:88px; flex:none; overflow:hidden; border-radius:6px; background:#f1f2f4; }
+    .creative-extension-source__thumb img { display:block; width:100%; height:100%; object-fit:cover; transform:scale(1.55); }
+    .creative-extension-source__copy { min-width:0; }
+    .creative-extension-source__eyebrow { display:block; margin-bottom:4px; color:#8491a1; font-size:11px; }
+    .creative-extension-source__copy strong { display:block; overflow:hidden; color:#263447; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }
+    .creative-extension-source__code { display:block; margin-top:5px; color:#718096; font-size:12px; font-variant-numeric:tabular-nums; }
+    .creative-extension-section-title { margin:18px 0 9px; color:#273343; font-size:13px; font-weight:600; }
+    .creative-extension-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .creative-extension-option { padding:10px 11px; border:1px solid #e4e9ef; border-radius:9px; background:#fff; }
+    .creative-extension-option__number { display:block; margin-bottom:5px; color:#95a0ad; font-size:11px; font-variant-numeric:tabular-nums; }
+    .creative-extension-option strong { display:block; color:#344153; font-size:13px; }
+    .creative-extension-option small { display:block; margin-top:3px; color:#8a95a2; font-size:11px; line-height:1.4; }
+    .creative-extension-form { margin-top:17px; }
+    .creative-extension-form label { display:block; margin-bottom:7px; color:#273343; font-size:13px; font-weight:600; }
+    .creative-extension-form .el-textarea__inner { border-radius:8px; font-size:13px; }
+    .creative-extension-form__hint { margin:8px 0 0; color:#8a95a2; font-size:11px; line-height:1.5; }
+    @media (max-width:560px) { .creative-extension-options { grid-template-columns:1fr; } .creative-extension-source__thumb { width:88px; height:72px; } }
     .creative-result-empty { display: flex; min-height: 650px; align-items: center; justify-content: center; }
     .required-mark { margin-left: 4px; color: #F56C6C; font-size: 16px; line-height: 1; vertical-align: middle; }
     .field-page { min-height: 1080px; padding: 28px 48px 50px; background: #F7F7F8; }
@@ -908,11 +921,12 @@
       <span slot="footer"><el-button type="primary" @click="acceptanceVisible=false">知道了</el-button></span>
     </el-dialog>
 
-    <el-dialog title="延伸生图" :visible.sync="extensionVisible" width="760px" custom-class="creative-extension-dialog" append-to-body :close-on-click-modal="!extension.loading" :close-on-press-escape="!extension.loading" :show-close="!extension.loading">
-      <div class="creative-extension-layout">
-        <div class="creative-extension-source"><img :src="extensionSource.image" :alt="extensionSource.name"><div class="creative-extension-source__label">基于原图 <strong>{{ extensionSource.code }}</strong> · {{ extensionSource.name }}</div></div>
-        <div class="creative-extension-form"><p class="creative-extension-form__lead">保留这张图的主体设计，从细节、图案和配色三个方向各生成 1 张新图。</p><label for="extension-prompt">想继续探索的方向（选填）</label><el-input id="extension-prompt" v-model="extension.prompt" type="textarea" :rows="5" maxlength="300" show-word-limit placeholder="例如：保留袜型，尝试更细的波点和柔和配色"></el-input><p class="creative-extension-form__hint">新图会加入创意图列表，原图保持不变，并标记来源。</p></div>
-      </div>
+    <el-dialog title="延伸生图" :visible.sync="extensionVisible" width="680px" custom-class="creative-extension-dialog" append-to-body :close-on-click-modal="!extension.loading" :close-on-press-escape="!extension.loading" :show-close="!extension.loading">
+      <p class="creative-extension-intro">以当前图片为基础，生成 3 个不同方向的变体</p>
+      <div class="creative-extension-source"><div class="creative-extension-source__thumb"><img :src="extensionSource.image" :alt="extensionSource.name"></div><div class="creative-extension-source__copy"><span class="creative-extension-source__eyebrow">当前原图</span><strong>{{ extensionSource.name }}</strong><span class="creative-extension-source__code">{{ extensionSource.code }}</span></div></div>
+      <div class="creative-extension-section-title">生成方向</div>
+      <div class="creative-extension-options"><div class="creative-extension-option"><span class="creative-extension-option__number">01</span><strong>细节深化</strong><small>调整纹样与局部细节</small></div><div class="creative-extension-option"><span class="creative-extension-option__number">02</span><strong>图案变化</strong><small>探索新的图案排列</small></div><div class="creative-extension-option"><span class="creative-extension-option__number">03</span><strong>配色探索</strong><small>尝试不同辅助配色</small></div></div>
+      <div class="creative-extension-form"><label for="extension-prompt">补充要求（选填）</label><el-input id="extension-prompt" v-model="extension.prompt" type="textarea" :rows="3" maxlength="300" show-word-limit placeholder="例如：保留袜型，让波点更细、配色更柔和"></el-input><p class="creative-extension-form__hint">原图保持不变，新图会加入创意图列表并标记来源。</p></div>
       <span slot="footer"><el-button :disabled="extension.loading" @click="extensionVisible=false">取消</el-button><el-button type="primary" :loading="extension.loading" @click="generateExtensions">{{ extension.loading ? '生成中' : '生成 3 张延伸图' }}</el-button></span>
     </el-dialog>
 
