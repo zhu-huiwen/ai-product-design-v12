@@ -423,7 +423,8 @@
     .reference-upload.is-active { border-color: #bfd0e8; background: #fbfcff; box-shadow: 0 0 0 2px rgba(135,164,204,.11); }
     .reference-upload.is-active .reference-upload__thumb { border-color: #a8bfdc; background: #f5f8fc; }
     .reference-upload:focus-visible { outline: 2px solid #a8bfdc; outline-offset: 2px; }
-    .reference-form-card__paste-hint { color:#939ca9; font-size:12px; font-weight:400; }
+    .reference-upload__content { display:flex; min-width:0; height:48px; flex-direction:column; justify-content:center; }
+    .reference-upload__hint { overflow:hidden; color:#8795a8; font-size:12px; line-height:17px; text-overflow:ellipsis; white-space:nowrap; }
     .reference-upload__trigger { width: 52px; }
     .reference-upload__thumb { position: relative; display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #DADDE3; border-radius: 8px; color: #2F3135; background: #FAFAFB; font-size: 24px; }
     .reference-upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -434,8 +435,8 @@
     .reference-upload__action--preview { top: 50%; left: 50%; font-size: 15px; transform: translate(-50%,-50%); }
     .reference-upload__action--delete { top: 2px; right: 2px; background: rgba(255,255,255,.94); color: #60656F; font-size: 13px; }
     .reference-upload__action--delete:hover { color: #F04444; background: #fff; }
-    .reference-upload > .el-input { min-width: 0; }
-    .reference-upload > .el-input .el-input__inner { height: 48px; border: 0; padding: 0 10px; color: #4A4E55; background: transparent; font-size: 15px; }
+    .reference-upload__content > .el-input { min-width: 0; }
+    .reference-upload__content > .el-input .el-input__inner { height: 29px; border: 0; padding: 0; color: #4A4E55; background: transparent; font-size: 13px; }
     .prompt-column { position: sticky; top: 108px; min-height: 900px; padding: 22px 24px; border: 1px solid #F0F1F3; border-radius: 14px; background: #fff; }
     .prompt-column__head { display: flex; margin-bottom: 16px; align-items: center; justify-content: space-between; gap: 18px; color: #565A61; }
     .prompt-column__dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--sw-primary); }
@@ -685,7 +686,7 @@
                 </section>
 
                 <section class="reference-form-card">
-                  <h2 class="reference-form-card__title"><span>参考图片</span><span class="reference-form-card__paste-hint">选中图片格后直接粘贴</span></h2>
+                  <h2 class="reference-form-card__title">参考图片</h2>
                   <div v-for="kind in imageKinds" :key="kind.key" class="reference-image-row" @click="activeImageKind=kind.key" @focusin="activeImageKind=kind.key">
                     <div class="reference-image-label">{{ kind.label }}（{{ planning.images[kind.key] ? '1/1' : '0/1' }}）</div>
                     <div class="reference-upload" :class="{'is-active':activeImageKind===kind.key}" tabindex="0" :aria-label="kind.label+'参考图片格，可直接粘贴图片'" :data-reference-kind="kind.key" :data-field-description="kind.label+'图片：选填；每组最多 1 张；选中本格后直接粘贴，替换后在方案中展示缩略图和对应说明。'">
@@ -699,7 +700,7 @@
                           </span>
                         </span>
                       </el-upload>
-                      <el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input>
+                      <div class="reference-upload__content"><span class="reference-upload__hint">{{ planning.images[kind.key] ? '已添加图片 · 可粘贴替换' : '点击上传 · 也可直接粘贴' }}</span><el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input></div>
                     </div>
                   </div>
                 </section>
