@@ -425,6 +425,7 @@
     .reference-upload:focus-visible { outline: 2px solid #a8bfdc; outline-offset: 2px; }
     .reference-upload__content { display:flex; min-width:0; height:48px; flex-direction:column; justify-content:center; }
     .reference-upload__hint { overflow:hidden; color:#8795a8; font-size:12px; line-height:17px; text-overflow:ellipsis; white-space:nowrap; }
+    .reference-upload__content:focus-within .reference-upload__hint { display:none; }
     .reference-upload__trigger { width: 52px; }
     .reference-upload__thumb { position: relative; display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #DADDE3; border-radius: 8px; color: #2F3135; background: #FAFAFB; font-size: 24px; }
     .reference-upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -700,7 +701,7 @@
                           </span>
                         </span>
                       </el-upload>
-                      <div class="reference-upload__content"><span class="reference-upload__hint">{{ planning.images[kind.key] ? '已添加图片 · 可粘贴替换' : '点击上传 · 也可直接粘贴' }}</span><el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input></div>
+                      <div class="reference-upload__content"><span v-if="!planning.imageNotes[kind.key]" class="reference-upload__hint">{{ planning.images[kind.key] ? '已添加图片 · 可粘贴替换' : '点击上传 · 也可直接粘贴' }}</span><el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input></div>
                     </div>
                   </div>
                 </section>
