@@ -419,12 +419,11 @@
     .reference-image-row { display: grid; grid-template-columns: 100px 1fr; min-height: 66px; align-items: center; gap: 14px; border-top: 1px solid #F0F1F3; }
     .reference-image-row:first-of-type { border-top: 0; }
     .reference-image-label { color: #4E5157; font-size: 15px; }
-    .reference-upload { display: grid; min-height: 66px; grid-template-columns: 52px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 7px 10px; border: 1px solid #ECEEF2; border-radius: 10px; }
-    .reference-upload:focus-visible, .reference-upload:focus-within { outline: 2px solid #cbd8ef; outline-offset: 2px; }
-    .reference-upload__paste { padding: 6px 9px; border: 0; border-radius: 7px; color: #697789; background: #f4f6f9; cursor: pointer; font-size: 12px; white-space: nowrap; }
-    .reference-upload__paste:hover { color: #34465e; background: #e9eef5; }
-    .reference-upload__paste:disabled { opacity: .5; cursor: not-allowed; }
-    .reference-upload__paste i { margin-right: 4px; }
+    .reference-upload { display: grid; min-height: 66px; grid-template-columns: 52px minmax(0,1fr); align-items: center; gap: 12px; padding: 7px 10px; border: 1px solid #ECEEF2; border-radius: 10px; transition: border-color .18s ease,box-shadow .18s ease,background .18s ease; }
+    .reference-upload.is-active { border-color: #bfd0e8; background: #fbfcff; box-shadow: 0 0 0 2px rgba(135,164,204,.11); }
+    .reference-upload.is-active .reference-upload__thumb { border-color: #a8bfdc; background: #f5f8fc; }
+    .reference-upload:focus-visible { outline: 2px solid #a8bfdc; outline-offset: 2px; }
+    .reference-form-card__paste-hint { color:#939ca9; font-size:12px; font-weight:400; }
     .reference-upload__trigger { width: 52px; }
     .reference-upload__thumb { position: relative; display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #DADDE3; border-radius: 8px; color: #2F3135; background: #FAFAFB; font-size: 24px; }
     .reference-upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -686,10 +685,10 @@
                 </section>
 
                 <section class="reference-form-card">
-                  <h2 class="reference-form-card__title">参考图片</h2>
-                  <div v-for="kind in imageKinds" :key="kind.key" class="reference-image-row">
+                  <h2 class="reference-form-card__title"><span>参考图片</span><span class="reference-form-card__paste-hint">选中图片格后直接粘贴</span></h2>
+                  <div v-for="kind in imageKinds" :key="kind.key" class="reference-image-row" @click="activeImageKind=kind.key" @focusin="activeImageKind=kind.key">
                     <div class="reference-image-label">{{ kind.label }}（{{ planning.images[kind.key] ? '1/1' : '0/1' }}）</div>
-                    <div class="reference-upload" tabindex="0" :aria-label="kind.label+'参考图片，可上传或粘贴'" :data-field-description="kind.label+'图片：选填；每组最多 1 张；可上传或粘贴，替换后在方案中展示缩略图和对应说明。'" @paste="handlePlanningImagePaste(kind.key,$event)">
+                    <div class="reference-upload" :class="{'is-active':activeImageKind===kind.key}" tabindex="0" :aria-label="kind.label+'参考图片格，可直接粘贴图片'" :data-reference-kind="kind.key" :data-field-description="kind.label+'图片：选填；每组最多 1 张；选中本格后直接粘贴，替换后在方案中展示缩略图和对应说明。'">
                       <el-upload class="reference-upload__trigger" action="#" accept="image/*" :auto-upload="false" :show-file-list="false" :disabled="isViewer" :on-change="function(file){setImage(kind.key,file)}">
                         <span class="reference-upload__thumb">
                           <img v-if="planning.imagePreviews[kind.key]" :src="planning.imagePreviews[kind.key]" :alt="kind.label+'参考图'">
@@ -701,7 +700,6 @@
                         </span>
                       </el-upload>
                       <el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input>
-                      <button type="button" class="reference-upload__paste" :disabled="isViewer" :aria-label="'粘贴'+kind.label+'参考图片'" title="粘贴剪贴板图片；也可选中本行后按 ⌘V / Ctrl+V" @click="pastePlanningImageFromClipboard(kind.key,$event)"><i class="el-icon-document-copy"></i>粘贴图片</button>
                     </div>
                   </div>
                 </section>
@@ -1001,7 +999,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           colorDialogVisible: false, colorTab: 'pantone', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], frequentColorAddVisible:false, frequentColorDraft:{hex:''}, frequentAddHue:200, frequentAddSaturation:0, frequentAddBrightness:100, frequentAddDragging:false, pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:70, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
-          imageKinds: [{key:'sketch',label:'线稿'},{key:'competitor',label:'竞品'},{key:'creative',label:'创意'}],
+          imageKinds: [{key:'sketch',label:'线稿'},{key:'competitor',label:'竞品'},{key:'creative',label:'创意'}], activeImageKind:'sketch',
           planning: { category:'内裤', need:'', mainColor:{hex:'',pantone:'',source:''}, additionalColors:[], competitor:'', directions:[], constraints:[], forbidden:[], images:{sketch:'',competitor:'',creative:''}, imagePreviews:{sketch:'',competitor:'',creative:''}, imageNotes:{sketch:'',competitor:'',creative:''} },
           directionTemplates: [
             {id:'DIR-A',code:'A',name:'清新浪点提花中筒袜',match:95,selected:true,role:'资深内衣产品设计师',style:'年轻活泼、清新耐看。袜身主体为纯色，脚踝至小腿中部区域采用细密的局部提花波点图案，袜口为罗纹收边设计。',colors:'奶白色、浅灰色、藏青色',shape:'中筒袜版型，长度覆盖脚踝至小腿肚下方，袜口采用高弹力罗纹设计，贴合腿部曲线不勒腿。',material:'主体采用75%精梳棉+20%锦纶+5%氨纶混纺纱线，保证透气吸汗与高弹力。',idea:'以“清新耐看”为核心，通过局部小波点提花打破纯色袜子的单调感，波点图案规则排列，辨识度高且不过于复杂。',prompt:'方案 A｜清新浪点提花中筒袜\n角色：资深内衣产品设计师\n风格：年轻活泼、清新耐看\n配色：奶白色、浅灰色、藏青色'},
@@ -1065,7 +1063,8 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         isCurrentPromptOutdated: function(isOutdated,wasOutdated){ if(this.promptOutdatedToastReady&&isOutdated&&!wasOutdated)this.$message.warning('企划输入已修改，当前方案待更新'); }
       },
       created: function(){ var self=this;this.restoreColorState();this.restoreFrequentColors();this.restorePromptResults();this.$nextTick(function(){self.promptOutdatedToastReady=true;}); },
-      beforeDestroy: function(){ if(this._refineResizeObserver)this._refineResizeObserver.disconnect();this.refine.references.forEach(function(file){URL.revokeObjectURL(file.url);}); },
+      mounted: function(){ document.addEventListener('paste',this.handlePlanningImagePaste); },
+      beforeDestroy: function(){ document.removeEventListener('paste',this.handlePlanningImagePaste);if(this._refineResizeObserver)this._refineResizeObserver.disconnect();this.refine.references.forEach(function(file){URL.revokeObjectURL(file.url);}); },
       methods: {
         validColorHex: function(value){ return /^#[0-9a-fA-F]{6}$/.test((value||'').trim()); },
         hsvToHex: function(h,s,v){ s/=100;v/=100;var c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c,r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}return '#'+[r,g,b].map(function(n){return Math.round((n+m)*255).toString(16).padStart(2,'0');}).join('').toUpperCase(); },
@@ -1135,6 +1134,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           this.showRetryButton=false;
           this.planningStep=0;
           this.planning={category:'内裤',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],competitor:'',directions:[],constraints:[],forbidden:[],images:{sketch:'',competitor:'',creative:''},imagePreviews:{sketch:'',competitor:'',creative:''},imageNotes:{sketch:'',competitor:'',creative:''}};
+          this.activeImageKind='sketch';
           this.persistColorState();
           try{localStorage.removeItem(this.promptStorageKey);}catch(e){}
           this.planningMessage='已进入新设计，请填写企划需求后生成提示词。';
@@ -1151,27 +1151,19 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           this.setImage(key,{raw:blob,name:'粘贴图片.'+extension});
           this.$message.success('已粘贴到'+(kind?kind.label:'参考')+'图片');
         },
-        handlePlanningImagePaste: function(key,event){
-          if(this.isViewer)return;
+        handlePlanningImagePaste: function(event){
+          if(this.isViewer||this.currentPage!=='planning'||this.colorDialogVisible||this.previewDialogVisible||this.promptDialogVisible||event.defaultPrevented)return;
           var items=Array.from(event.clipboardData&&event.clipboardData.items||[]);
           var image=items.find(function(item){return item.type&&item.type.indexOf('image/')===0;});
           var blob=image&&image.getAsFile();
           if(!blob)blob=Array.from(event.clipboardData&&event.clipboardData.files||[]).find(function(file){return file.type&&file.type.indexOf('image/')===0;});
           if(!blob)return;
+          var row=event.target&&event.target.closest&&event.target.closest('[data-reference-kind]');
+          var key=row?row.getAttribute('data-reference-kind'):this.activeImageKind;
+          if(!this.imageKinds.some(function(kind){return kind.key===key;}))return;
           event.preventDefault();
-          event.stopPropagation();
+          this.activeImageKind=key;
           this.setPastedPlanningImage(key,blob);
-        },
-        pastePlanningImageFromClipboard: function(key,event){
-          if(this.isViewer)return;
-          var self=this,row=event.currentTarget.parentElement;
-          if(!navigator.clipboard||!navigator.clipboard.read){row.focus();this.$message.info('选中本行后按 ⌘V / Ctrl+V 粘贴图片');return;}
-          navigator.clipboard.read().then(function(items){
-            var imageItem=items.find(function(item){return item.types.some(function(type){return type.indexOf('image/')===0;});});
-            if(!imageItem){self.$message.warning('剪贴板中没有图片');return;}
-            var type=imageItem.types.find(function(value){return value.indexOf('image/')===0;});
-            return imageItem.getType(type).then(function(blob){self.setPastedPlanningImage(key,blob);});
-          }).catch(function(){row.focus();self.$message.info('请选中本行后按 ⌘V / Ctrl+V 粘贴图片');});
         },
         previewPlanningImage: function(key){ var preview=this.planning.imagePreviews[key];if(!preview)return;var kind=this.imageKinds.find(function(item){return item.key===key;});this.previewImage=preview;this.previewImageName=(kind?kind.label+'参考图片':'参考图片');this.previewDialogVisible=true; },
         removePlanningImage: function(key){ var preview=this.planning.imagePreviews[key];var usedByScheme=this.spliceScheme.references.some(function(item){return item.preview===preview;});if(preview&&!usedByScheme&&preview.indexOf('blob:')===0&&window.URL)try{URL.revokeObjectURL(preview);}catch(e){}var kind=this.imageKinds.find(function(item){return item.key===key;});this.$set(this.planning.images,key,'');this.$set(this.planning.imagePreviews,key,'');if(this.previewImage===preview&&!usedByScheme){this.previewDialogVisible=false;this.previewImage='';this.previewImageName='';}this.planningMessage=(kind?kind.label:'参考')+'图片已删除，已填写的说明保留。';this.planningMessageType='success';this.$message.success(this.planningMessage); },
