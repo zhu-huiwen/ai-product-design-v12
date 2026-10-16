@@ -520,6 +520,23 @@
     .creative-reference-tags { min-height: 30px; }
     .creative-reference-tags .el-tag { margin-right: 6px; border: 0; border-radius: 14px; color: #71757B; background: #F1F2F4; }
     .creative-refine.el-button { width: 100%; height: 50px; margin-top: 14px; border-radius: 10px; font-size: 18px; }
+    .creative-branch-origin { margin:8px 0 0; color:#7a8593; font-size:13px; }
+    .creative-branch-actions { display:flex; gap:8px; margin-top:14px; }
+    .creative-branch-actions .el-button { width:auto; min-width:0; flex:1; height:44px; margin:0; border-radius:9px; font-size:15px; }
+    .creative-branch-actions .el-button+.el-button { margin-left:0; }
+    .creative-branch-actions .creative-refine.el-button { margin-top:0; }
+    .creative-extension-dialog .el-dialog__body { padding-top:8px; }
+    .creative-extension-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+    .creative-extension-source { overflow:hidden; border:1px solid #e5e9ef; border-radius:11px; background:#f7f8fa; }
+    .creative-extension-source img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; }
+    .creative-extension-source__label { padding:11px 13px; color:#4f5966; font-size:13px; }
+    .creative-extension-source__label strong { color:#263447; }
+    .creative-extension-form__lead { margin:0 0 14px; color:#4a5564; font-size:14px; line-height:1.65; }
+    .creative-extension-form label { display:block; margin-bottom:7px; color:#263447; font-size:13px; font-weight:600; }
+    .creative-extension-form .el-textarea__inner { border-radius:8px; }
+    .creative-extension-form__hint { margin:12px 0 0; color:#7e8996; font-size:12px; line-height:1.6; }
+    .creative-extension-dialog .el-dialog__footer .el-button { border-radius:8px; }
+    @media (max-width:720px) { .creative-extension-layout { grid-template-columns:1fr; } }
     .creative-result-empty { display: flex; min-height: 650px; align-items: center; justify-content: center; }
     .required-mark { margin-left: 4px; color: #F56C6C; font-size: 16px; line-height: 1; vertical-align: middle; }
     .field-page { min-height: 1080px; padding: 28px 48px 50px; background: #F7F7F8; }
@@ -718,7 +735,7 @@
 
           <section v-if="currentPage==='creative'" class="sw-business-card creative-reference-page" data-annotation-page="creative-results" data-annotation-title="生成创意图">
             <section class="creative-hero" data-user-task="首次生成创意图并处理部分失败">
-              <div data-flow-step="entry"><h1>2. 生成创意</h1><p>查看详情/精修卡片，左侧配置输出规则，右侧是创意图列表</p></div>
+              <div data-flow-step="entry"><h1>2. 生成创意</h1><p>查看创意图，选择喜欢的方向继续延伸或精修</p></div>
               <div class="creative-hero__actions" data-flow-step="action"><el-button class="creative-hero__back" icon="el-icon-arrow-left" @click="goPage('planning')">上一步</el-button><el-button type="primary" @click="$message.success('已进入高清图生成流程')">生成高清图</el-button></div>
             </section>
 
@@ -739,20 +756,20 @@
               </aside>
 
               <section class="creative-result-panel">
-                <div class="creative-result-head"><span class="creative-result-title">创意图（成功 {{ successfulCreativeCount }} 张）</span><span class="creative-result-help">成功卡片可查看详情与精修，失败卡片可单独重新生成</span></div>
+                <div class="creative-result-head"><span class="creative-result-title">创意图（成功 {{ successfulCreativeCount }} 张）</span><span class="creative-result-help">选择喜欢的图片，可延伸生成 3 张新图</span></div>
                 <div class="creative-filter-pills" data-layout-section="status-filter"><el-radio-group v-model="creativeStatus"><el-radio-button label="全部"></el-radio-button><el-radio-button label="定稿"></el-radio-button><el-radio-button label="已移除"></el-radio-button></el-radio-group></div>
                 <section data-layout-section="filters" style="display:none"><el-input v-model="creativeKeyword" data-annotation-filter="creativeKeyword"></el-input></section>
                 <div data-layout-section="list">
                   <div v-if="filteredCreatives.length" class="creative-reference-grid">
                     <article v-for="item in pagedCreatives" :key="item.id" class="creative-reference-card" :class="{'is-failed':item.failed}" :data-annotation-identity="item.id" @click="openCreativeDetail(item)">
-                      <div class="creative-reference-image" :class="{'is-failed':item.failed}"><span class="creative-direction-chip">方向 {{ item.code.charAt(0) }}</span><img v-if="!item.failed" :src="item.image" :alt="item.name"><div v-else class="creative-failed-state"><span class="creative-failed-state__icon"><i :class="item.retrying ? 'el-icon-loading' : 'el-icon-picture-outline'"></i></span><strong>{{ item.retrying ? '重新生成中' : '生成失败' }}</strong><p>{{ item.retrying ? '正在重新提交当前图片，请稍候。' : item.failedReason }}</p></div></div>
+                      <div class="creative-reference-image" :class="{'is-failed':item.failed}"><span class="creative-direction-chip">{{ item.parentId ? '延伸图' : '方向 '+item.code.charAt(0) }}</span><img v-if="!item.failed" :src="item.image" :alt="item.name"><div v-else class="creative-failed-state"><span class="creative-failed-state__icon"><i :class="item.retrying ? 'el-icon-loading' : 'el-icon-picture-outline'"></i></span><strong>{{ item.retrying ? '重新生成中' : '生成失败' }}</strong><p>{{ item.retrying ? '正在重新提交当前图片，请稍候。' : item.failedReason }}</p></div></div>
                       <div class="creative-reference-body">
                         <div class="creative-code-row"><span class="creative-code-chip">{{ item.code }}</span><el-button class="creative-delete" type="text" icon="el-icon-delete" :disabled="isViewer" @click.stop="removeCreative(item)"></el-button></div>
-                        <h3 class="creative-reference-name">{{ item.name }}</h3><p class="creative-reference-desc">{{ item.desc }}</p>
+                        <h3 class="creative-reference-name">{{ item.name }}</h3><p v-if="item.parentId" class="creative-branch-origin">基于 {{ item.parentCode }} 延伸</p><p class="creative-reference-desc">{{ item.desc }}</p>
                         <div class="creative-reference-tags"><el-tag v-for="tag in item.tags" :key="tag" size="small">{{ tag }}</el-tag></div>
                         <div v-if="item.mainColor && item.mainColor.hex" class="color-card-meta"><span class="color-card-meta__swatch" :style="{background:item.mainColor.hex}"></span>目标主色 {{ item.mainColor.hex }}</div>
                         <el-button v-if="item.failed" class="creative-refine" type="primary" :loading="item.retrying" :disabled="isViewer || item.removed || item.retrying" @click.stop="retryCreative(item)">{{ item.retrying ? '生成中' : '重新生成' }}</el-button>
-                        <el-button v-else class="creative-refine" type="primary" :disabled="isViewer || item.removed" @click.stop="openRefine(item)">精 修</el-button>
+                        <div v-else class="creative-branch-actions"><el-button type="primary" plain :disabled="isViewer || item.removed" @click.stop="openExtension(item)">延伸生图</el-button><el-button class="creative-refine" type="primary" :disabled="isViewer || item.removed" @click.stop="openRefine(item)">精修</el-button></div>
                       </div>
                     </article>
                   </div>
@@ -891,10 +908,18 @@
       <span slot="footer"><el-button type="primary" @click="acceptanceVisible=false">知道了</el-button></span>
     </el-dialog>
 
+    <el-dialog title="延伸生图" :visible.sync="extensionVisible" width="760px" custom-class="creative-extension-dialog" append-to-body :close-on-click-modal="!extension.loading" :close-on-press-escape="!extension.loading" :show-close="!extension.loading">
+      <div class="creative-extension-layout">
+        <div class="creative-extension-source"><img :src="extensionSource.image" :alt="extensionSource.name"><div class="creative-extension-source__label">基于原图 <strong>{{ extensionSource.code }}</strong> · {{ extensionSource.name }}</div></div>
+        <div class="creative-extension-form"><p class="creative-extension-form__lead">保留这张图的主体设计，从细节、图案和配色三个方向各生成 1 张新图。</p><label for="extension-prompt">想继续探索的方向（选填）</label><el-input id="extension-prompt" v-model="extension.prompt" type="textarea" :rows="5" maxlength="300" show-word-limit placeholder="例如：保留袜型，尝试更细的波点和柔和配色"></el-input><p class="creative-extension-form__hint">新图会加入创意图列表，原图保持不变，并标记来源。</p></div>
+      </div>
+      <span slot="footer"><el-button :disabled="extension.loading" @click="extensionVisible=false">取消</el-button><el-button type="primary" :loading="extension.loading" @click="generateExtensions">{{ extension.loading ? '生成中' : '生成 3 张延伸图' }}</el-button></span>
+    </el-dialog>
+
     <el-drawer title="创意图详情" :visible.sync="detailDrawerVisible" size="73%" direction="rtl" append-to-body data-layout-section="detail-drawer" data-drawer-id="creative-detail">
       <section class="drawer-section"><h2 class="drawer-section__title">基本信息</h2><el-row :gutter="20"><el-col :span="12"><el-form label-width="100px"><el-form-item label="款式编号"><el-input :value="selectedCreative.code" disabled></el-input></el-form-item><el-form-item label="款式名称"><el-input :value="selectedCreative.name" disabled></el-input></el-form-item></el-form></el-col><el-col :span="12"><el-form label-width="100px"><el-form-item label="生成模型"><el-input value="Nano Banana 2" disabled></el-input></el-form-item><el-form-item label="状态"><el-input :value="selectedCreative.final?'定稿候选':'创意图'" disabled></el-input></el-form-item></el-form></el-col></el-row></section>
-      <section class="drawer-section"><h2 class="drawer-section__title">设计说明</h2><p>{{ selectedCreative.desc }}</p><div v-if="selectedCreative.mainColor && selectedCreative.mainColor.hex" class="color-detail-row"><span class="color-detail-row__swatch" :style="{background:selectedCreative.mainColor.hex}"></span><span>生成时的目标主色：{{ selectedCreative.mainColor.hex }}<small v-if="selectedCreative.mainColor.pantone">｜{{ pantoneOriginText(selectedCreative.mainColor) }} {{ selectedCreative.mainColor.pantone }}</small></span></div><el-alert title="查看态保留列表上下文；完整边界、权限、状态和失败规则以同版本 Markdown 为准。" type="info" :closable="false"></el-alert></section>
-      <div class="drawer-footer"><el-button @click="detailDrawerVisible=false">关闭</el-button><el-button type="primary" :disabled="isViewer" @click="detailDrawerVisible=false;openRefine(selectedCreative)">进入精修</el-button></div>
+      <section class="drawer-section"><h2 class="drawer-section__title">设计说明</h2><p v-if="selectedCreative.parentId" class="creative-branch-origin">基于 {{ selectedCreative.parentCode }} 延伸 · {{ selectedCreative.extensionFocus }}</p><p>{{ selectedCreative.desc }}</p><div v-if="selectedCreative.mainColor && selectedCreative.mainColor.hex" class="color-detail-row"><span class="color-detail-row__swatch" :style="{background:selectedCreative.mainColor.hex}"></span><span>生成时的目标主色：{{ selectedCreative.mainColor.hex }}<small v-if="selectedCreative.mainColor.pantone">｜{{ pantoneOriginText(selectedCreative.mainColor) }} {{ selectedCreative.mainColor.pantone }}</small></span></div><el-alert title="查看态保留列表上下文；完整边界、权限、状态和失败规则以同版本 Markdown 为准。" type="info" :closable="false"></el-alert></section>
+      <div class="drawer-footer"><el-button @click="detailDrawerVisible=false">关闭</el-button><el-button :disabled="isViewer" @click="detailDrawerVisible=false;openExtension(selectedCreative)">延伸生图</el-button><el-button type="primary" :disabled="isViewer" @click="detailDrawerVisible=false;openRefine(selectedCreative)">进入精修</el-button></div>
     </el-drawer>
 
     <el-drawer title="单图精修 · 生成新版本" :visible.sync="refineDrawerVisible" size="73%" direction="rtl" append-to-body data-drawer-id="single-image-refine" data-user-task="单图精修生成新版本">
@@ -932,7 +957,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           activeMenu: 'product', currentPage: 'planning', roleMode: 'designer', planningStep: 0,
           planningMessage: '请填写企划需求；关键操作后自动保存。', planningMessageType: 'info',
           promptLoading: false, imageLoading: false, showRetryButton: false, promptDialogVisible: false, previewDialogVisible: false,
-          acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, historyDrawerVisible: false,
+          acceptanceVisible: false, detailDrawerVisible: false, refineDrawerVisible: false, extensionVisible: false, historyDrawerVisible: false,
           colorDialogVisible: false, colorTab: 'wheel', colorSelections: [], colorDraft: {hex:'#DCECF8',pantone:'',source:'色盘选择'}, colorStorageKey: 'ai-product-design-v12-main-color', frequentColorStorageKey: 'ai-product-design-v12-frequent-colors', frequentColors:['#E9F3FC','#DCECF8','#FBF4DA','#F9E5C7','#E8F2E6','#F4DDDA','#F2EBF5','#E7E9EA'], frequentColorAddVisible:false, frequentColorDraft:{hex:''}, frequentAddHue:200, frequentAddSaturation:0, frequentAddBrightness:100, frequentAddDragging:false, pantoneColors:(window.PANTONE_FHI_COLORS||[]).map(function(pair){return {code:pair[0],hex:pair[1],hsl:pantoneHexToHsl(pair[1])};}), pantoneQuery:'', pantonePage:1, pantonePageSize:40, pantoneCardWidth:70, pantoneFilterDefs:[{key:'h',label:'色相',max:360,unit:'°'},{key:'s',label:'饱和度',max:100,unit:'%'},{key:'l',label:'明度',max:100,unit:'%'}], pantoneFilters:{h:{active:false,from:0,to:360},s:{active:false,from:0,to:100},l:{active:false,from:0,to:100}}, pantoneDrag:null, wheelHue: 200, wheelSaturation: 22, wheelBrightness: 85, wheelDragging: false,
           activePrompt: '', activePromptItemId: '', previewImage: '', previewImageName: '', promptMode: 'ai', splicedPrompt: '', splicedEditing: false, spliceScheme:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, spliceEditDraft:{category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]}, promptPlanningFingerprints:{ai:'',splice:''}, promptOutdatedToastReady:false, promptStorageKey: 'ai-product-design-v12-empty-state-prompt-results', imageScenario: 'success', creativeMessage: '本次计划生成 3 张，成功 3 张，失败 0 张。', creativeMessageType: 'success', failedImageCount: 0,
           categories: ['内裤','文胸','袜子','吊带'], directionOptions: ['少女感','清新耐看','几何撞色','休闲字母'], constraintOptions: ['车缝','随心裁','精梳棉混纺','基础色'], forbiddenOptions: ['复杂印花','浮夸 Logo','禁止与竞品完全一致','禁止人体穿着展示','禁止文字内容','禁止浮夸Logo','禁止竞品复刻','禁止非指定品牌标识'],
@@ -945,7 +970,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           ],
           directions: [],
           generation: {formats:['PNG'],ratio:'3:4',resolution:'4K'}, creativeKeyword:'', creativeStatus:'全部', creativePage:1, creativePageSize:6,
-          creatives: [], selectedCreative:{name:'',code:'',desc:'',tags:[],image:'',final:false},
+          creatives: [], selectedCreative:{name:'',code:'',desc:'',tags:[],image:'',final:false}, extensionSource:{id:'',code:'',name:'',image:''}, extension:{prompt:'',loading:false},
           generationMainColor:{hex:'',pantone:'',source:''},
           refine: {prompt:'保持中筒袜版型，将局部提花调整为更细密的浅蓝波点，并保留奶白色主体。',scenario:'success',loading:false,message:'',messageType:'info',version:1},
           historyFilters:{keyword:'',category:'',status:'全部'}, historyPage:1, historyPageSize:5, historyMessage:'', selectedHistory:{},
@@ -1061,6 +1086,9 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           this.spliceScheme={category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]};
           this.spliceEditDraft={category:'',need:'',mainColor:{hex:'',pantone:'',source:''},additionalColors:[],references:[],textReferences:[],directions:[],constraints:[],forbidden:[]};
           this.creatives=[];
+          this.extensionVisible=false;
+          this.extensionSource={id:'',code:'',name:'',image:''};
+          this.extension={prompt:'',loading:false};
           this.generationMainColor={hex:'',pantone:'',source:''};
           this.colorSelections=[];
           this.failedImageCount=0;
@@ -1188,10 +1216,50 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         showPrompt: function(item){ this.activePrompt=item.prompt;this.activePromptItemId=item.id;this.promptDialogVisible=true; },
         saveActivePrompt: function(){ var item=this.directions.find(function(row){return row.id===this.activePromptItemId;}.bind(this));if(item)item.prompt=this.activePrompt;this.promptDialogVisible=false;this.persistPromptResults();this.$message.success('提示词修改已保存'); },
         productSvg: function(color,label,accent){ accent=accent||'#FFFFFF';var svg='<svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540"><rect width="720" height="540" fill="#F7F8FA"/><g transform="translate(205 70)"><path d="M75 20 H220 V235 C220 292 181 328 126 328 H70 C34 328 18 305 36 276 L75 215 Z" fill="'+color+'" stroke="#CDD3DC" stroke-width="4"/><path d="M75 72 H220 M75 110 H220" stroke="'+accent+'" stroke-opacity=".9" stroke-width="13"/><circle cx="113" cy="164" r="11" fill="'+accent+'"/><circle cx="151" cy="164" r="11" fill="'+accent+'"/><circle cx="189" cy="164" r="11" fill="'+accent+'"/></g><text x="360" y="455" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="25" fill="#667085">'+label+'</text></svg>';return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg); },
+        extensionSvg: function(source,focus,index){
+          var color=/^#[0-9a-f]{6}$/i.test(source.palette||'')?source.palette:'#D8E4EA';
+          var accent=/^#[0-9a-f]{6}$/i.test(source.accent||'')?source.accent:'#FFFFFF';
+          var warm='#F2D7C9';
+          var motifs=[
+            '<path d="M75 70 H220 M75 105 H220" stroke="'+accent+'" stroke-width="10"/><g fill="'+accent+'"><circle cx="108" cy="146" r="5"/><circle cx="144" cy="146" r="5"/><circle cx="180" cy="146" r="5"/><circle cx="108" cy="181" r="5"/><circle cx="144" cy="181" r="5"/><circle cx="180" cy="181" r="5"/><circle cx="108" cy="216" r="5"/><circle cx="144" cy="216" r="5"/><circle cx="180" cy="216" r="5"/></g>',
+            '<path d="M75 72 H220 M75 108 H220" stroke="'+accent+'" stroke-width="12"/><g stroke="'+accent+'" stroke-width="8" stroke-linecap="round"><path d="M104 140 L165 203"/><path d="M145 140 L205 202"/><path d="M89 183 L150 246"/></g>',
+            '<path d="M75 72 H220 M75 110 H220" stroke="'+accent+'" stroke-width="12"/><path d="M76 208 L220 160 V235 C220 292 181 328 126 328 H70 C53 328 42 322 37 313 Z" fill="'+warm+'" fill-opacity=".72"/><path d="M90 142 H197" stroke="'+accent+'" stroke-width="8" stroke-linecap="round"/><g fill="'+accent+'"><circle cx="112" cy="178" r="7"/><circle cx="151" cy="178" r="7"/><circle cx="190" cy="178" r="7"/></g>'
+          ];
+          var svg='<svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540"><rect width="720" height="540" fill="#F7F8FA"/><g transform="translate(205 70)"><path d="M75 20 H220 V235 C220 292 181 328 126 328 H70 C34 328 18 305 36 276 L75 215 Z" fill="'+color+'" stroke="#CDD3DC" stroke-width="4"/>'+motifs[index]+'</g><text x="360" y="455" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="25" fill="#667085">'+focus+'</text></svg>';
+          return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+        },
         directionFailureReason: function(item){ var reasons={A:'图像生成模型响应超时，请重新生成创意。',B:'图片生成服务暂时不可用，请稍后重试。',C:'生成任务执行异常，未返回图片结果。'};return reasons[item.code]||'图片生成失败，请重新生成创意。'; },
         requestGenerateCreative: function(){ if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}var self=this;if(this.isCurrentPromptOutdated){this.$confirm('企划输入已发生修改，当前方案尚未更新。继续生成创意将使用修改前的方案。','方案待更新',{confirmButtonText:'继续生成创意',cancelButtonText:'取消',type:'warning',closeOnClickModal:false}).then(function(){self.generateCreative();}).catch(function(){});return;}this.generateCreative(); },
         generateCreative: function(){ var activeDirections=this.activeGenerationDirections;if(!activeDirections.length){this.$message.error('请至少选择 1 个文字方案');return;}var self=this;var targetColor=Object.assign({hex:'',pantone:'',source:''},activeDirections[0].mainColor||{});this.imageLoading=true;this.showRetryButton=false;this.planningMessage='正在生成创意图；前端不设置固定超时，以后端任务终态为准。';this.planningMessageType='info';setTimeout(function(){self.imageLoading=false;if(self.imageScenario==='processing'){self.planningMessage='任务仍在处理中';self.planningMessageType='warning';self.showRetryButton=false;self.$message.warning('任务仍在处理中，可离开并从历史任务恢复查看最终结果');return;}if(self.imageScenario==='allFailed'){self.failedImageCount=3;self.planningMessage='';self.planningMessageType='info';self.showRetryButton=true;self.$message.error('生成失败');return;}var partial=self.imageScenario==='partial';var successCount=partial?1:3;var palette=['#D8E4EA','#D8EBDD','#EADCE6'];var selected=activeDirections;self.generationMainColor=Object.assign({},targetColor);self.creatives=[];for(var i=0;i<3;i++){var source=selected[i%selected.length];var failed=partial&&i>=successCount;var displayColor=targetColor.hex||palette[i];self.creatives.push({id:'STYLE-'+(i+1),code:source.code+'-01',name:source.name,desc:self.promptMode==='splice'?'基于字段直接拼接方案生成，提示词未经 AI 改写。':'基于已选文字方案生成，突出局部提花、清新配色与日常舒适穿着。',tags:self.promptMode==='splice'?['字段拼接','直接生成']:(i===0?['提花','清新']:i===1?['撞色','几何']:['字母','休闲']),image:failed?'':self.productSvg(displayColor,source.name,self.planning.additionalColors.length?self.planning.additionalColors[i%self.planning.additionalColors.length].hex:'#FFFFFF'),palette:displayColor,accent:self.planning.additionalColors.length?self.planning.additionalColors[i%self.planning.additionalColors.length].hex:'#FFFFFF',mainColor:Object.assign({},targetColor),failed:failed,failedReason:i===1?'模型响应超时，请重新生成。':'图片生成服务异常，请重新生成。',retryOutcome:i===1?'failed':'success',retrying:false,retryAttempts:0,final:false,removed:false});}self.failedImageCount=3-successCount;self.creativeMessage='本次计划生成 3 张，成功 '+successCount+' 张，失败 '+self.failedImageCount+' 张。';self.creativeMessageType=self.failedImageCount?'warning':'success';self.creativeStatus='全部';self.currentPage='creative';self.planningStep=2;self.$message[self.failedImageCount?'warning':'success'](self.creativeMessage);},1000); },
         retryCreative: function(item){ if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}if(!item.failed||item.retrying)return;var self=this;item.retrying=true;item.retryAttempts+=1;setTimeout(function(){item.retrying=false;if(item.retryOutcome==='failed'){item.failedReason='模型再次响应超时，请继续重新生成。';self.$message.warning('重新生成失败，请再次尝试');return;}item.failed=false;item.image=self.productSvg(item.palette,item.name,item.accent);item.desc='该图片已单独重新生成成功，可继续查看详情或进行精修。';self.failedImageCount=self.creatives.filter(function(row){return row.failed;}).length;self.creativeMessage='本次计划生成 3 张，成功 '+self.successfulCreativeCount+' 张，失败 '+self.failedImageCount+' 张。';self.creativeMessageType=self.failedImageCount?'warning':'success';self.$message.success('图片重新生成成功');},850); },
+        openExtension: function(item){
+          if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}
+          if(!item||item.failed||item.removed||!item.image)return;
+          this.extensionSource=item;
+          this.extension={prompt:'',loading:false};
+          this.extensionVisible=true;
+        },
+        generateExtensions: function(){
+          if(this.isViewer||this.extension.loading)return;
+          var source=this.extensionSource;
+          if(!source.id||source.failed||source.removed||!this.creatives.some(function(item){return item.id===source.id;})){this.$message.warning('原图已不可用，请重新选择');return;}
+          var self=this,prompt=this.extension.prompt.trim(),focuses=['细节深化','图案变化','配色探索'];
+          this.extension.loading=true;
+          setTimeout(function(){
+            if(!self.creatives.some(function(item){return item.id===source.id;})){self.extension.loading=false;return;}
+            var serial=self.creatives.filter(function(item){return item.parentId===source.id;}).length;
+            var batchId=Date.now();
+            focuses.forEach(function(focus,index){
+              var next=serial+index+1;
+              self.creatives.push({id:'STYLE-EXT-'+batchId+'-'+index,code:source.code+'-E'+String(next).padStart(2,'0'),name:source.name+' · '+focus,desc:'保留原图的主体版型。延伸方向：'+focus+'。'+(prompt?'补充方向：'+prompt:'基于原图继续发散。'),tags:['延伸图',focus],image:self.extensionSvg(source,focus,index),palette:source.palette,accent:source.accent,mainColor:Object.assign({},source.mainColor||{}),parentId:source.id,parentCode:source.code,extensionFocus:focus,extensionPrompt:prompt,failed:false,retrying:false,final:false,removed:false});
+            });
+            self.extension.loading=false;
+            self.extensionVisible=false;
+            self.creativeStatus='全部';
+            self.creativePage=Math.ceil(self.creatives.filter(function(item){return !item.removed;}).length/self.creativePageSize);
+            self.$message.success('已基于 '+source.code+' 生成 3 张延伸图');
+          },900);
+        },
         openCreativeDetail: function(item){ if(item.failed||item.retrying)return;this.selectedCreative=item;this.detailDrawerVisible=true; },
         removeCreative: function(item){ item.removed=true;item.final=false;this.$message.success('已移至“已移除”'); },
         openRefine: function(item){ if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}this.selectedCreative=item;this.refine.message='';this.refineDrawerVisible=true; },
