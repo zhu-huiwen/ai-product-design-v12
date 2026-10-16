@@ -79,7 +79,7 @@
     .main-color-card__actions { display:flex; gap:8px; flex-wrap:wrap; }
     .color-dialog { margin-top:1vh !important; }
     .color-dialog .el-dialog__body { max-height:calc(92vh - 112px); overflow-y:auto; padding-top:8px; }
-    .color-dialog--main .el-tabs__header { margin:0 0 12px; }
+    .color-dialog--main .el-tabs__header { margin:0 0 6px; }
     .color-dialog--main .el-tabs__nav-wrap::after,
     .color-dialog--main .el-tabs__active-bar { display:none; }
     .color-dialog--main .el-tabs__nav { display:flex; gap:3px; padding:4px; border:1px solid #e0e5ed; border-radius:10px; background:#f2f4f7; }
@@ -92,7 +92,8 @@
     .color-dialog:not(.frequent-add-dialog) .el-dialog__footer .el-button--primary:not(.is-disabled) { box-shadow:0 3px 9px rgba(0,102,255,.16); }
     .color-picker-layout { display:flex; align-items:center; gap:26px; padding:12px 0 18px; }
     .color-picker-layout--wheel { gap:16px; }
-    .color-dialog--main .color-picker-layout--wheel { padding-top:6px; padding-bottom:4px; }
+    .color-dialog--main .color-picker-layout--wheel { padding-top:0; padding-bottom:0; }
+    .color-dialog--main .frequent-color-section { margin-top:0; }
     .color-wheel-group { display:flex; align-items:center; gap:8px; flex:none; }
     .color-wheel { position:relative; width:224px; height:224px; flex:none; border-radius:50%; cursor:crosshair; touch-action:none; user-select:none; background:radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 70%), conic-gradient(red, yellow, lime, cyan, blue, magenta, red); box-shadow:0 0 0 1px #d8deeb, 0 7px 22px rgba(31,56,105,.12); }
     .color-picker-value-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:9px 0 5px; }
@@ -179,8 +180,8 @@
     .color-dialog--main { max-width:980px; margin-top:.5vh !important; }
     .color-dialog--main .el-dialog__header { padding:12px 20px 6px; }
     .color-dialog--main .el-dialog__footer { padding-top:6px !important; padding-bottom:10px !important; }
-    .color-dialog--main .el-dialog__body { display:flex; height:calc(98vh - 90px); max-height:none; flex-direction:column; gap:14px; overflow:hidden; }
-    .color-step-card--selection { flex:1; min-height:0; margin-bottom:0; overflow-y:auto; }
+    .color-dialog--main .el-dialog__body { display:flex; height:auto; max-height:calc(100vh - 100px); flex-direction:column; gap:14px; padding-bottom:10px; overflow-y:auto; }
+    .color-step-card--selection { box-sizing:border-box; flex:none; height:clamp(370px,calc(35vh + 110px),410px); margin-bottom:0; overflow-y:auto; }
     .color-step-card--selection .color-picker-layout--wheel,
     .color-step-card--selection .frequent-color-section { max-width:640px; margin-left:auto; margin-right:auto; }
     .pantone-workspace { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:12px; align-items:start; }
@@ -228,8 +229,8 @@
     .pantone-page .el-pagination.is-background .el-pager li:not(.disabled):hover { background:#e8edf3; color:#334155; }
     .pantone-page .el-pagination.is-background .el-pager li:not(.disabled).active { background:#dce3ec; color:#263447; font-weight:600; }
     @media (max-width:800px) {
-      .color-dialog--main .el-dialog__body { display:block; height:auto; max-height:calc(98vh - 90px); overflow-y:auto; }
-      .color-step-card--selection { overflow:visible; margin-bottom:14px; }
+      .color-dialog--main .el-dialog__body { display:block; height:auto; max-height:calc(100vh - 100px); overflow-y:auto; }
+      .color-step-card--selection { height:auto; overflow:visible; margin-bottom:14px; }
       .pantone-workspace { grid-template-columns:1fr; }
       .pantone-colors-pane { height:clamp(200px,35vh,300px); }
       .color-role-flow__slots { grid-template-columns:1fr; }
