@@ -419,7 +419,12 @@
     .reference-image-row { display: grid; grid-template-columns: 100px 1fr; min-height: 66px; align-items: center; gap: 14px; border-top: 1px solid #F0F1F3; }
     .reference-image-row:first-of-type { border-top: 0; }
     .reference-image-label { color: #4E5157; font-size: 15px; }
-    .reference-upload { display: grid; min-height: 66px; grid-template-columns: 52px minmax(0,1fr); align-items: center; gap: 12px; padding: 7px 10px; border: 1px solid #ECEEF2; border-radius: 10px; }
+    .reference-upload { display: grid; min-height: 66px; grid-template-columns: 52px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 7px 10px; border: 1px solid #ECEEF2; border-radius: 10px; }
+    .reference-upload:focus-visible, .reference-upload:focus-within { outline: 2px solid #cbd8ef; outline-offset: 2px; }
+    .reference-upload__paste { padding: 6px 9px; border: 0; border-radius: 7px; color: #697789; background: #f4f6f9; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .reference-upload__paste:hover { color: #34465e; background: #e9eef5; }
+    .reference-upload__paste:disabled { opacity: .5; cursor: not-allowed; }
+    .reference-upload__paste i { margin-right: 4px; }
     .reference-upload__trigger { width: 52px; }
     .reference-upload__thumb { position: relative; display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #DADDE3; border-radius: 8px; color: #2F3135; background: #FAFAFB; font-size: 24px; }
     .reference-upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -684,7 +689,7 @@
                   <h2 class="reference-form-card__title">参考图片</h2>
                   <div v-for="kind in imageKinds" :key="kind.key" class="reference-image-row">
                     <div class="reference-image-label">{{ kind.label }}（{{ planning.images[kind.key] ? '1/1' : '0/1' }}）</div>
-                    <div class="reference-upload" :data-field-description="kind.label+'图片：选填；每组最多 1 张；上传后在拼接方案右侧展示缩略图和对应说明。'">
+                    <div class="reference-upload" tabindex="0" :aria-label="kind.label+'参考图片，可上传或粘贴'" :data-field-description="kind.label+'图片：选填；每组最多 1 张；可上传或粘贴，替换后在方案中展示缩略图和对应说明。'" @paste="handlePlanningImagePaste(kind.key,$event)">
                       <el-upload class="reference-upload__trigger" action="#" accept="image/*" :auto-upload="false" :show-file-list="false" :disabled="isViewer" :on-change="function(file){setImage(kind.key,file)}">
                         <span class="reference-upload__thumb">
                           <img v-if="planning.imagePreviews[kind.key]" :src="planning.imagePreviews[kind.key]" :alt="kind.label+'参考图'">
@@ -696,6 +701,7 @@
                         </span>
                       </el-upload>
                       <el-input v-model="planning.imageNotes[kind.key]" maxlength="100" :disabled="isViewer" placeholder="填写说明"></el-input>
+                      <button type="button" class="reference-upload__paste" :disabled="isViewer" :aria-label="'粘贴'+kind.label+'参考图片'" title="粘贴剪贴板图片；也可选中本行后按 ⌘V / Ctrl+V" @click="pastePlanningImageFromClipboard(kind.key,$event)"><i class="el-icon-document-copy"></i>粘贴图片</button>
                     </div>
                   </div>
                 </section>
@@ -1138,6 +1144,35 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         handleRoleChange: function(){ this.$message[this.isViewer?'warning':'success'](this.isViewer?'已切换只读访客：生成、复制、精修和继续设计不可用':'已切换设计师角色'); },
         toggleDirection: function(item){ if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}item.selected=!item.selected;this.persistPromptResults(); },
         setImage: function(key,file){ var oldPreview=this.planning.imagePreviews[key];var usedByScheme=this.spliceScheme.references.some(function(item){return item.preview===oldPreview;});if(oldPreview&&!usedByScheme&&oldPreview.indexOf('blob:')===0&&window.URL)try{URL.revokeObjectURL(oldPreview);}catch(e){}var raw=file.raw||file;var preview=file.url||'';if(!preview&&raw&&window.URL&&URL.createObjectURL)try{preview=URL.createObjectURL(raw);}catch(e){}this.$set(this.planning.images,key,file.name||'已上传图片');this.$set(this.planning.imagePreviews,key,preview);this.planningMessage='已选择'+(file.name||'图片')+'，可继续填写参考说明。';this.planningMessageType='success'; },
+        setPastedPlanningImage: function(key,blob){
+          if(this.isViewer||!blob||!blob.type||blob.type.indexOf('image/')!==0)return;
+          var kind=this.imageKinds.find(function(item){return item.key===key;});
+          var extension=blob.type.split('/')[1].replace('jpeg','jpg').replace('svg+xml','svg')||'png';
+          this.setImage(key,{raw:blob,name:'粘贴图片.'+extension});
+          this.$message.success('已粘贴到'+(kind?kind.label:'参考')+'图片');
+        },
+        handlePlanningImagePaste: function(key,event){
+          if(this.isViewer)return;
+          var items=Array.from(event.clipboardData&&event.clipboardData.items||[]);
+          var image=items.find(function(item){return item.type&&item.type.indexOf('image/')===0;});
+          var blob=image&&image.getAsFile();
+          if(!blob)blob=Array.from(event.clipboardData&&event.clipboardData.files||[]).find(function(file){return file.type&&file.type.indexOf('image/')===0;});
+          if(!blob)return;
+          event.preventDefault();
+          event.stopPropagation();
+          this.setPastedPlanningImage(key,blob);
+        },
+        pastePlanningImageFromClipboard: function(key,event){
+          if(this.isViewer)return;
+          var self=this,row=event.currentTarget.parentElement;
+          if(!navigator.clipboard||!navigator.clipboard.read){row.focus();this.$message.info('选中本行后按 ⌘V / Ctrl+V 粘贴图片');return;}
+          navigator.clipboard.read().then(function(items){
+            var imageItem=items.find(function(item){return item.types.some(function(type){return type.indexOf('image/')===0;});});
+            if(!imageItem){self.$message.warning('剪贴板中没有图片');return;}
+            var type=imageItem.types.find(function(value){return value.indexOf('image/')===0;});
+            return imageItem.getType(type).then(function(blob){self.setPastedPlanningImage(key,blob);});
+          }).catch(function(){row.focus();self.$message.info('请选中本行后按 ⌘V / Ctrl+V 粘贴图片');});
+        },
         previewPlanningImage: function(key){ var preview=this.planning.imagePreviews[key];if(!preview)return;var kind=this.imageKinds.find(function(item){return item.key===key;});this.previewImage=preview;this.previewImageName=(kind?kind.label+'参考图片':'参考图片');this.previewDialogVisible=true; },
         removePlanningImage: function(key){ var preview=this.planning.imagePreviews[key];var usedByScheme=this.spliceScheme.references.some(function(item){return item.preview===preview;});if(preview&&!usedByScheme&&preview.indexOf('blob:')===0&&window.URL)try{URL.revokeObjectURL(preview);}catch(e){}var kind=this.imageKinds.find(function(item){return item.key===key;});this.$set(this.planning.images,key,'');this.$set(this.planning.imagePreviews,key,'');if(this.previewImage===preview&&!usedByScheme){this.previewDialogVisible=false;this.previewImage='';this.previewImageName='';}this.planningMessage=(kind?kind.label:'参考')+'图片已删除，已填写的说明保留。';this.planningMessageType='success';this.$message.success(this.planningMessage); },
         previewSpliceReference: function(item){ if(!item||!item.preview)return;this.previewImage=item.preview;this.previewImageName=item.label+'参考图片';this.previewDialogVisible=true; },
