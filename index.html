@@ -107,8 +107,20 @@
     .palette-preview__item.is-dragging { opacity:.45; cursor:grabbing; }
     .palette-preview__item.is-drop-target { border-color:#7d8da2; outline:2px dashed #aab7c9; outline-offset:2px; }
     @media (hover:none) { .palette-preview__remove { opacity:1; transform:none; } }
-    .main-color-card__empty { display:flex; align-items:center; justify-content:center; padding:8px 12px; border:1px dashed #d9e0e8; border-radius:10px; background:#fafbfc; }
-    .main-color-card__empty .el-button { flex:none; padding:7px 11px; border-radius:7px; font-size:12px; }
+    .main-color-card__empty { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; padding:8px 12px; border:1px solid #dfe5ec; border-radius:9px; background:#f8fafc; color:#344153; cursor:pointer; transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease; }
+    .main-color-card__empty:hover:not(:disabled) { border-color:#b9c7d8; background:#f3f6fa; box-shadow:0 2px 8px rgba(48,65,86,.06); }
+    .main-color-card__empty:focus-visible { outline:2px solid #8ea8cd; outline-offset:2px; }
+    .main-color-card__empty:disabled { cursor:not-allowed; opacity:.6; }
+    .main-color-card__empty-inner { display:flex; align-items:center; gap:10px; }
+    .main-color-card__empty-swatches { display:flex; align-items:center; padding-left:7px; }
+    .main-color-card__empty-swatches i { width:20px; height:20px; margin-left:-7px; border:2px solid #fff; border-radius:6px; box-shadow:0 1px 3px rgba(44,57,73,.14); }
+    .main-color-card__empty-swatches i:nth-child(1) { background:#bed8e7; }
+    .main-color-card__empty-swatches i:nth-child(2) { background:#d6ccdd; }
+    .main-color-card__empty-swatches i:nth-child(3) { background:#e7d7b8; }
+    .main-color-card__empty-copy { display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; }
+    .main-color-card__empty-copy strong { font-size:13px; font-weight:600; line-height:1.2; }
+    .main-color-card__empty-copy small { color:#8995a3; font-size:11px; line-height:1.2; }
+    .main-color-card__empty-arrow { margin-left:2px; color:#8190a2; font-size:18px; line-height:1; }
     @media (max-width:540px) { .main-color-card__header { align-items:flex-start; } .main-color-card__header .main-color-card__actions { flex-direction:column; align-items:flex-end; } .palette-preview { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     .color-dialog { margin-top:1vh !important; }
     .color-dialog .el-dialog__body { max-height:calc(92vh - 112px); overflow-y:auto; padding-top:8px; }
@@ -696,7 +708,7 @@
                     <div class="palette-preview__item palette-preview__item--main" :class="{'is-dragging':paletteDragIndex===0,'is-drop-target':paletteDropIndex===0&&paletteDragIndex!==null}" :style="{'--palette-main-color':planning.mainColor.hex}" :draggable="!isViewer" title="拖动颜色卡调整顺序，移到第一位设为主色" @dragstart="startPaletteDrag($event,0)" @dragover.prevent="overPaletteColor($event,0)" @drop.prevent="dropPaletteColor(0)" @dragend="endPaletteDrag"><span class="palette-preview__swatch" :style="{background:planning.mainColor.hex}"></span><div class="palette-preview__info"><span class="palette-preview__role">主色</span><strong class="palette-preview__code">{{ planning.mainColor.pantone || planning.mainColor.hex }}</strong><small v-if="planning.mainColor.pantone" class="palette-preview__hex">{{ planning.mainColor.hex }}</small></div><button v-if="!isViewer" type="button" class="palette-preview__remove" aria-label="删除主色" title="删除主色" draggable="false" @click="removePaletteColor(0)">×</button></div>
                     <div v-for="(item,index) in planning.additionalColors" :key="item.hex" class="palette-preview__item" :class="{'is-dragging':paletteDragIndex===index+1,'is-drop-target':paletteDropIndex===index+1&&paletteDragIndex!==null}" :draggable="!isViewer" title="拖动颜色卡调整顺序，移到第一位设为主色" @dragstart="startPaletteDrag($event,index+1)" @dragover.prevent="overPaletteColor($event,index+1)" @drop.prevent="dropPaletteColor(index+1)" @dragend="endPaletteDrag"><span class="palette-preview__swatch" :style="{background:item.hex}"></span><div class="palette-preview__info"><span class="palette-preview__role">参考色</span><strong class="palette-preview__code">{{ item.pantone || item.hex }}</strong><small v-if="item.pantone" class="palette-preview__hex">{{ item.hex }}</small></div><button v-if="!isViewer" type="button" class="palette-preview__remove" :aria-label="'删除参考色 '+(item.pantone || item.hex)" :title="'删除参考色 '+(item.pantone || item.hex)" draggable="false" @click="removePaletteColor(index+1)">×</button></div>
                   </div>
-                  <div v-else class="main-color-card__empty"><el-button size="small" icon="el-icon-brush" :disabled="isViewer" @click="openColorDialog('pantone')">选择配色</el-button></div>
+                  <button v-else type="button" class="main-color-card__empty" :disabled="isViewer" @click="openColorDialog('pantone')"><span class="main-color-card__empty-inner"><span class="main-color-card__empty-swatches" aria-hidden="true"><i></i><i></i><i></i></span><span class="main-color-card__empty-copy"><strong>选择配色</strong><small>HEX 色盘 · 潘通 FHI 色号</small></span><span class="main-color-card__empty-arrow" aria-hidden="true">→</span></span></button>
                 </section>
 
                 <section class="reference-form-card">
