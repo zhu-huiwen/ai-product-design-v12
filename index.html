@@ -320,7 +320,7 @@
     .drawer-section { margin-bottom: 18px; padding: 18px; border-radius: 8px; background: #fff; box-shadow: 0 1px 5px rgba(52,52,52,.06); }
     .drawer-section__title { margin: 0 0 16px; padding-left: 9px; border-left: 3px solid var(--sw-primary); color: #303133; font-size: 15px; font-weight: 600; }
     .drawer-footer { position: sticky; bottom: -20px; display: flex; margin: 20px -20px -20px; padding: 12px 20px; justify-content: flex-end; gap: 10px; border-top: 1px solid #ECEEF3; background: #fff; }
-    .refine-workspace { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(290px,.85fr); grid-template-rows:minmax(0,1fr) auto; gap:14px; height:calc(100vh - 166px); min-height:490px; }
+    .refine-workspace { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(290px,.85fr); grid-template-rows:minmax(520px,1fr) auto; gap:14px; min-height:calc(100vh - 140px); }
     .refine-artboard { display:flex; min-height:0; flex-direction:column; overflow:hidden; border:1px solid #e6e9ef; border-radius:14px; background:#fff; }
     .refine-tool-row { display:flex; min-height:56px; padding:8px 14px; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid #e9edf3; background:#fff; }
     .refine-tool-actions { display:flex; align-items:center; gap:8px; }
@@ -356,9 +356,13 @@
     .refine-panel { overflow:hidden; border:1px solid #e6e9ef; border-radius:12px; background:#fff; }
     .refine-panel__head { display:flex; min-height:42px; padding:0 14px; align-items:center; justify-content:space-between; border-bottom:1px solid #edf0f4; color:#243047; font-size:13px; font-weight:600; }
     .refine-panel__head small { color:#8993a3; font-weight:400; }
+    .refine-panel__head--version { min-height:62px; flex-direction:column; align-items:stretch; justify-content:center; gap:6px; }
+    .refine-panel__subhead { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#7b8492; font-size:11px; font-weight:400; }
+    .refine-panel__path { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
     .refine-version-list { min-height:138px; max-height:230px; padding:8px; overflow-y:auto; }
     .refine-version { display:flex; width:100%; min-height:38px; padding:7px 10px; align-items:center; gap:9px; border:0; border-radius:7px; color:#536174; background:transparent; text-align:left; cursor:pointer; }
     .refine-version:hover, .refine-version.is-active { color:#243047; background:#f0f4fa; }
+    .refine-version__chevron { width:11px; flex:none; color:#59667a; font-size:12px; text-align:center; }
     .refine-version__dot { width:7px; height:7px; flex:none; border-radius:50%; background:#3478eb; }
     .refine-version__label { flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
     .refine-version__tag { padding:2px 7px; border-radius:10px; color:#637086; background:#e8edf4; font-size:11px; }
@@ -980,7 +984,7 @@
       <div class="drawer-footer"><el-button @click="detailDrawerVisible=false">关闭</el-button><el-button type="primary" :disabled="isViewer" @click="detailDrawerVisible=false;openRefine(selectedCreative)">进入精修</el-button></div>
     </el-drawer>
 
-    <el-drawer :title="'精修 · '+selectedCreative.code" :visible.sync="refineDrawerVisible" size="86%" direction="rtl" append-to-body data-drawer-id="single-image-refine" data-user-task="单图精修生成新版本">
+    <el-drawer :title="'精修 · '+(refineCurrentVersion.code||selectedCreative.code)" :visible.sync="refineDrawerVisible" size="86%" direction="rtl" append-to-body data-drawer-id="single-image-refine" data-user-task="单图精修生成新版本">
       <div class="refine-workspace" data-flow-step="action">
         <div class="refine-artboard">
           <div class="refine-tool-row" role="toolbar" :aria-label="refine.mode==='brush'?'涂抹操作':'框选操作'">
@@ -992,7 +996,7 @@
           <div class="refine-canvas-footer"><div class="refine-zoom"><button type="button" title="缩小" aria-label="缩小图片" :disabled="refine.zoom<=50" @click="changeRefineZoom(-25)">−</button><span>{{ refine.zoom }}%</span><button type="button" title="放大" aria-label="放大图片" :disabled="refine.zoom>=200" @click="changeRefineZoom(25)">+</button></div><div class="refine-canvas-actions" v-if="refine.mode==='brush'"><el-button size="mini" :disabled="!refine.draftStrokes.length" title="取消本次涂抹" @click="clearRefineStrokes">取消</el-button><el-button size="mini" type="primary" :disabled="!refine.draftStrokes.length" @click="finishBrushAnnotation">保存</el-button></div></div>
         </div>
         <aside class="refine-inspector">
-          <div class="refine-panel"><div class="refine-panel__head"><span>版本历史</span><small>深度 {{ refine.versions.length }} / 4</small></div><div class="refine-version-list"><button v-for="(version,index) in refine.versions" :key="version.id" type="button" class="refine-version" :class="{'is-active':refine.activeVersionIndex===index}" :disabled="refine.loading" @click="selectRefineVersion(index)"><span class="refine-version__dot"></span><span class="refine-version__label">{{ version.code }} <small>{{ index===0?'一级':'第 '+(index+1)+' 版' }}</small></span><span class="refine-version__tag" :class="{'is-primary':index===0}">{{ index===0?'主版本':version.mode==='box'?'框选版':version.mode==='brush'?'涂抹版':'精修版' }}</span></button></div></div>
+          <div class="refine-panel"><div class="refine-panel__head refine-panel__head--version"><span>版本历史</span><div class="refine-panel__subhead"><span class="refine-panel__path">{{ refineVersionPath }}</span><small>深度 {{ refineCurrentDepth }} / 4</small></div></div><div class="refine-version-list"><button v-for="entry in refineVersionRows" :key="entry.version.id" type="button" class="refine-version" :class="{'is-active':refine.activeVersionIndex===entry.index}" :style="{paddingLeft:(10+(entry.depth-1)*18)+'px'}" :disabled="refine.loading" @click="selectRefineVersion(entry.index)"><span class="refine-version__chevron">{{ entry.hasChildren?'▾':'' }}</span><span class="refine-version__dot"></span><span class="refine-version__label">{{ entry.version.code }} <small>{{ refineDepthLabel(entry.depth) }}</small></span><span v-if="entry.version.id===refine.mainVersionId" class="refine-version__tag is-primary">主版本</span></button></div></div>
           <div class="refine-panel" style="flex:1"><div class="refine-panel__head"><span>{{ refine.mode==='brush'?'涂抹区域':'框选区域' }}（{{ refineActiveAnnotations.length }} 个）</span><small>仅用于本次{{ refine.mode==='brush'?'涂抹':'框选' }}精修</small></div><div class="refine-note-list"><div v-if="!refineActiveAnnotations.length" class="refine-note-empty">{{ refine.mode==='brush'?'在图片上涂抹需要修改的部位，保存后填写修改要求':'在图片上拖拽框选需要修改的部位，再填写修改要求' }}</div><div v-for="(note,index) in refineActiveAnnotations" :key="note.id" class="refine-note-row"><span class="refine-note-index" :class="{'is-brush':refine.mode==='brush'}">{{ index+1 }}</span><span class="refine-note-kind">{{ refine.mode==='brush'?'涂抹':'框选' }}</span><el-input v-model="note.text" size="mini" :placeholder="'区域 '+(index+1)+'：希望怎样修改？'"></el-input><el-button type="text" icon="el-icon-close" :aria-label="'删除区域 '+(index+1)" @click="removeRefineAnnotation(index)"></el-button></div></div></div>
         </aside>
         <div class="refine-composer"><div class="refine-composer__hint">{{ refine.mode==='brush'?'涂抹':'框选' }}区域的修改要求写在右侧；这里可补充整张图需要保留或调整的内容。本次只使用当前方式的标注。</div><el-input v-model="refineActivePrompt" type="textarea" :rows="3" maxlength="500" show-word-limit :placeholder="refine.mode==='brush'?'例如：保留原有版型，涂抹区域改为更柔和的配色……':'例如：保留原有版型，框选区域调整为更简洁的图案……'" :data-field-description="'修改内容：最多 500 字；'+(refine.mode==='brush'?'涂抹':'框选')+'区域需填写对应的修改要求。'"></el-input><div class="refine-composer__foot"><div class="refine-composer__tools"><input ref="refineFileInput" type="file" accept="image/*" multiple style="display:none" @change="addRefineReferences"><el-button icon="el-icon-plus" size="mini" title="添加参考图片" @click="$refs.refineFileInput.click()"></el-button><span v-for="(file,index) in refine.references" :key="file.id" class="refine-reference"><img :src="file.url" :alt="file.name"><button type="button" :aria-label="'移除'+file.name" @click="removeRefineReference(index)">×</button></span><el-button size="mini" @click="refineAdvancedVisible=true">高级参数</el-button></div><el-button type="primary" :loading="refine.loading" :disabled="!canGenerateRefine" @click="generateRefinedVersion">{{ refine.loading ? '生成中…' : '生成新版本' }}</el-button></div></div>
@@ -1043,7 +1047,7 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           generation: {formats:['PNG'],ratio:'3:4',resolution:'4K'}, creativeKeyword:'', creativeStatus:'全部', creativePage:1, creativePageSize:6,
           creatives: [], selectedCreative:{name:'',code:'',desc:'',tags:[],image:'',final:false},
           generationMainColor:{hex:'',pantone:'',source:''},
-          refine: {scenario:'success',loading:false,message:'',messageType:'info',versions:[],activeVersionIndex:-1,modeDrafts:{brush:{annotations:[],prompt:''},box:{annotations:[],prompt:''}},draftsByVersion:{},mode:'brush',brushTool:'paint',brushSize:26,zoom:100,draftStrokes:[],activeStroke:null,drawing:false,stageWidth:480,stageHeight:360,draftRect:null,dragStart:null,references:[],cuff:'无',pattern:'无图案',customCuff:'',customPattern:''},
+          refine: {scenario:'success',loading:false,message:'',messageType:'info',versions:[],activeVersionIndex:-1,mainVersionId:'',modeDrafts:{brush:{annotations:[],prompt:''},box:{annotations:[],prompt:''}},draftsByVersion:{},mode:'brush',brushTool:'paint',brushSize:26,zoom:100,draftStrokes:[],activeStroke:null,drawing:false,stageWidth:480,stageHeight:360,draftRect:null,dragStart:null,references:[],cuff:'无',pattern:'无图案',customCuff:'',customPattern:''},
           historyFilters:{keyword:'',category:'',status:'全部'}, historyPage:1, historyPageSize:5, historyMessage:'', selectedHistory:{},
           fieldRows:[
             {name:'品类选择',type:'单选',scope:'全部品类',required:true,status:'启用'},
@@ -1089,7 +1093,10 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         filteredCreatives: function(){ var self=this; return this.creatives.filter(function(item){var byKeyword=!self.creativeKeyword||item.name.indexOf(self.creativeKeyword.trim())!==-1;var byStatus=self.creativeStatus==='已移除'?item.removed:(self.creativeStatus==='定稿'?item.final&&!item.removed:!item.removed);return byKeyword&&byStatus;}); },
         pagedCreatives: function(){ return this.filteredCreatives.slice((this.creativePage-1)*this.creativePageSize,this.creativePage*this.creativePageSize); },
         refineCurrentVersion: function(){ return this.refine.versions[this.refine.activeVersionIndex]||{}; },
-        canGenerateRefine: function(){ var notes=this.refineActiveAnnotations;return !this.refine.loading&&this.refine.versions.length<4&&(this.refine.mode!=='brush'||!this.refine.draftStrokes.length)&&notes.every(function(note){return note.text.trim();})&&Boolean(this.refineActivePrompt.trim()||notes.length); },
+        refineCurrentDepth: function(){ return this.refineCurrentVersion.depth||1; },
+        refineVersionRows: function(){ var versions=this.refine.versions,rows=[];function visit(parentId,depth){versions.forEach(function(version,index){if((version.parentId||null)!==parentId)return;rows.push({version:version,index:index,depth:depth,hasChildren:versions.some(function(child){return child.parentId===version.id;})});visit(version.id,depth+1);});}visit(null,1);return rows; },
+        refineVersionPath: function(){ var versions=this.refine.versions,current=this.refineCurrentVersion,parts=[],seen={};while(current&&current.id&&!seen[current.id]){seen[current.id]=true;parts.unshift(current.code);current=versions.find(function(version){return version.id===current.parentId;});}return parts.join(' › '); },
+        canGenerateRefine: function(){ var notes=this.refineActiveAnnotations;return !this.refine.loading&&this.refineCurrentDepth<4&&(this.refine.mode!=='brush'||!this.refine.draftStrokes.length)&&notes.every(function(note){return note.text.trim();})&&Boolean(this.refineActivePrompt.trim()||notes.length); },
         filteredHistory: function(){ var self=this; return this.historyRows.filter(function(row){var key=self.historyFilters.keyword.trim();var byKey=!key||[row.name,row.creator,row.category].join(' ').indexOf(key)!==-1;var byCategory=!self.historyFilters.category||row.category===self.historyFilters.category;var byStatus=self.historyFilters.status==='全部'||row.status===self.historyFilters.status;return byKey&&byCategory&&byStatus;}); },
         pagedHistory: function(){ return this.filteredHistory.slice((this.historyPage-1)*this.historyPageSize,this.historyPage*this.historyPageSize); }
       },
@@ -1328,8 +1335,11 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           if(this.isViewer){this.$message.error('暂无权限执行此操作，请联系管理员');return;}
           this.refine.references.forEach(function(file){URL.revokeObjectURL(file.url);});
           this.selectedCreative=item;
-          if(!item.refineVersions)this.$set(item,'refineVersions',[{id:item.id+'-original',code:item.code,image:item.image,filter:'',prompt:''}]);
+          if(!item.refineVersions)this.$set(item,'refineVersions',[{id:item.id+'-original',code:item.code,image:item.image,filter:'',prompt:'',parentId:null,depth:1}]);
+          item.refineVersions.forEach(function(version,index){if(index===0){if(version.depth==null)this.$set(version,'depth',1);return;}if(version.parentId===undefined)this.$set(version,'parentId',item.refineVersions[index-1].id);if(version.depth==null){var parent=item.refineVersions.find(function(row){return row.id===version.parentId;});this.$set(version,'depth',(parent&&parent.depth||1)+1);}}.bind(this));
+          if(!item.mainRefineVersionId)this.$set(item,'mainRefineVersionId',item.refineVersions[item.refineVersions.length-1].id);
           this.refine.versions=item.refineVersions;
+          this.refine.mainVersionId=item.mainRefineVersionId;
           this.refine.activeVersionIndex=-1;
           this.refine.draftsByVersion={};this.refine.references=[];this.refine.mode='brush';this.refine.brushTool='paint';this.refine.zoom=100;this.refine.draftStrokes=[];this.refine.activeStroke=null;this.refine.drawing=false;this.refine.draftRect=null;this.refine.dragStart=null;
           this.refine.customCuff='';this.refine.customPattern='';this.refine.message='';this.refine.messageType='info';
@@ -1338,6 +1348,27 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
           var self=this;this.$nextTick(function(){self.syncRefineStage();if(window.ResizeObserver&&self.$refs.refineCanvas){if(self._refineResizeObserver)self._refineResizeObserver.disconnect();self._refineResizeObserver=new ResizeObserver(function(){self.syncRefineStage();});self._refineResizeObserver.observe(self.$refs.refineCanvas);}});
         },
         annotationStyle: function(note){return {left:note.x+'%',top:note.y+'%',width:note.w+'%',height:note.h+'%'};},
+        refineDepthLabel: function(depth){return ['一级','二级','三级','四级'][depth-1]||'第 '+depth+' 级';},
+        refineNextCode: function(parent){var count=this.refine.versions.filter(function(version){return version.parentId===parent.id;}).length+1;return parent.code+'-'+count;},
+        refineDemoColor: function(text,index){if(/粉|玫瑰|樱花/.test(text))return '#F1B9C9';if(/蓝|天空|海洋/.test(text))return '#A8CDEA';if(/绿|薄荷/.test(text))return '#A9DCC1';if(/黄|奶油/.test(text))return '#F5DE9D';if(/紫|薰衣草/.test(text))return '#C8B9E3';if(/红|橘/.test(text))return '#EDAA9D';return ['#C7B8E5','#B5D9CF','#E8C5A4','#ACCBE4'][index%4];},
+        refineDemoImage: function(parent,annotations,prompt,stageWidth){
+          var source=parent.image||'',prefix='data:image/svg+xml;charset=UTF-8,';
+          if(source.indexOf(prefix)!==0)return source;
+          var svg=decodeURIComponent(source.slice(prefix.length)),clip='M75 20 H220 V235 C220 292 181 328 126 328 H70 C34 328 18 305 36 276 L75 215 Z';
+          if(svg.indexOf('id="refineProductClip"')===-1)svg=svg.replace('<g transform="translate(205 70)">','<defs><clipPath id="refineProductClip"><path d="'+clip+'"/></clipPath></defs><g transform="translate(205 70)">');
+          var marks='',scale=720/Math.max(1,stageWidth||720),self=this;
+          (annotations.length?annotations:[{type:'box',x:0,y:0,w:100,h:100,text:prompt}]).forEach(function(note,index){
+            var color=self.refineDemoColor((note.text||'')+' '+prompt,index);
+            if(note.type==='box'){
+              marks+='<rect x="'+(note.x*7.2-205).toFixed(1)+'" y="'+(note.y*5.4-70).toFixed(1)+'" width="'+(note.w*7.2).toFixed(1)+'" height="'+(note.h*5.4).toFixed(1)+'" fill="'+color+'" opacity=".82" clip-path="url(#refineProductClip)"/>';
+            }else{
+              var maskId='refineStrokeMask'+self.refine.versions.length+'_'+index,paths='<rect x="-205" y="-70" width="720" height="540" fill="black"/>';
+              (note.paths||[]).forEach(function(stroke){var points=stroke.points||[],shade=stroke.mode==='erase'?'black':'white',width=((stroke.size||26)*scale).toFixed(1);if(!points.length)return;var coords=points.map(function(point){return [(point.x*7.2-205).toFixed(1),(point.y*5.4-70).toFixed(1)];});if(coords.length===1)paths+='<circle cx="'+coords[0][0]+'" cy="'+coords[0][1]+'" r="'+(width/2)+'" fill="'+shade+'"/>';else paths+='<path d="M'+coords.map(function(pair){return pair.join(' ');}).join(' L')+'" fill="none" stroke="'+shade+'" stroke-width="'+width+'" stroke-linecap="round" stroke-linejoin="round"/>';});
+              marks+='<defs><mask id="'+maskId+'" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="-205" y="-70" width="720" height="540">'+paths+'</mask></defs><rect x="-205" y="-70" width="720" height="540" fill="'+color+'" opacity=".82" clip-path="url(#refineProductClip)" mask="url(#'+maskId+')"/>';
+            }
+          });
+          svg=svg.replace('</g><text',marks+'</g><text');return prefix+encodeURIComponent(svg);
+        },
         selectRefineVersion: function(index){
           var version=this.refine.versions[index];if(!version||index===this.refine.activeVersionIndex)return;
           var previous=this.refine.versions[this.refine.activeVersionIndex];
@@ -1371,15 +1402,16 @@ window.PANTONE_FHI_COLORS=[["11-0103","#F3ECE0"],["11-0602","#F2F0EB"],["11-0601
         toggleFinal: function(item){ item.final=!item.final;this.$message.success(item.final?'已标记定稿候选':'已取消定稿候选'); },
         generateRefinedVersion: function(){
           var self=this;if(!this.canGenerateRefine)return;
+          var parent=this.refineCurrentVersion,stageWidth=this.refine.stageWidth;
           var mode=this.refine.mode,prompt=this.refineActivePrompt.trim(),annotations=JSON.parse(JSON.stringify(this.refineActiveAnnotations));
           this.refine.loading=true;this.refine.message='正在生成精修版本…';this.refine.messageType='info';
           setTimeout(function(){
             self.refine.loading=false;
             if(self.refine.scenario==='processing'){self.refine.message='任务仍在处理中，当前修改内容和标注已保留。';self.refine.messageType='warning';return;}
             if(self.refine.scenario==='failed'){self.refine.message='生成失败，请调整描述后重试；原图和现有版本已保留。';self.refine.messageType='error';return;}
-            var index=self.refine.versions.length+1;
-            var version={id:self.selectedCreative.id+'-v'+index,code:self.selectedCreative.code+'-V'+index,image:self.refine.versions[0].image,filter:'hue-rotate('+((index-1)*10)+'deg) saturate('+(1+(index-1)*.07)+')',mode:mode,prompt:prompt,annotations:annotations,references:self.refine.references.map(function(file){return file.name;}),cuff:self.refine.cuff,pattern:self.refine.pattern};
-            self.refine.versions.push(version);self.selectRefineVersion(self.refine.versions.length-1);
+            var index=self.refine.versions.length+1,image=self.refineDemoImage(parent,annotations,prompt,stageWidth);
+            var version={id:self.selectedCreative.id+'-v'+index,code:self.refineNextCode(parent),image:image,filter:image===parent.image?(parent.filter||'none'):'',parentId:parent.id,depth:(parent.depth||1)+1,mode:mode,prompt:'',annotations:[],sourceMode:mode,sourcePrompt:prompt,sourceAnnotations:annotations,references:self.refine.references.map(function(file){return file.name;}),cuff:self.refine.cuff,pattern:self.refine.pattern};
+            self.refine.versions.push(version);self.refine.mainVersionId=version.id;self.$set(self.selectedCreative,'mainRefineVersionId',version.id);self.selectRefineVersion(self.refine.versions.length-1);
             self.refine.message='已创建 '+version.code+'，可在版本历史中切换查看。';self.refine.messageType='success';self.$message.success('已生成新版本');
           },900);
         },
